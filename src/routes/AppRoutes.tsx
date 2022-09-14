@@ -9,7 +9,7 @@ import Conditions from "../pages/conditions/Conditions";
 import Search from "../pages/search/Search";
 
 // Products pages
-import Products from "../pages/products/Products";
+import Products from "../components/products/Products";
 import Product from "../components/product/Product";
 import NewProduct from "../pages/newProduct/NewProduct";
 
@@ -34,10 +34,10 @@ const AppRoutes = () => {
 
       {/* Products routes */}
       <Route path="/products" element={<Products />} />
-      <Route path="/product/:id" element={<Product />} />
+      {/* <Route path="/product/:id" element={<Product />} /> */}
       <Route path="/products/:category" element={<Products />} />
       <Route path="/products/new" element={<NewProduct />} />
-      <Route path="/product/update/:id" element={<Product />} />
+      {/* <Route path="/product/update/:id" element={<Product />} /> */}
 
       {/* Auth routes */}
       <Route path="/login" element={<Login />} />
