@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Fuse from "fuse.js";
 import { useQuery, gql } from "@apollo/client";
 
-import Data from "../../data/Data.json";
 import Product from "../product/Product";
 import { useSearchContext } from "../../context/GameStoreContext";
 
@@ -39,7 +38,7 @@ const Container = styled.div`
 `;
 
 const Products = () => {
-  const { loading, error, data } = useQuery<ProductsType | any>(PRODUCTS_QUERY);
+  const { loading, error, data } = useQuery<ProductsType>(PRODUCTS_QUERY);
   const { searchParams } = useSearchContext();
 
   if (loading) return <p>Loading...</p>;
@@ -49,7 +48,7 @@ const Products = () => {
     keys: ["name", "category"],
   };
 
-  const fuse = new Fuse(data?.products, options);
+  const fuse = new Fuse(data?.products || [], options);
 
   return (
     <Container>
