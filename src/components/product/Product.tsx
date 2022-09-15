@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import formatCurrency from "../../utils/CurrencyFormatter";
+
 const Container = styled.div`
   width: 19.725625rem;
   height: 23.209375rem;
@@ -46,7 +48,7 @@ const Product = ({ id, name, category, price, stock, img }: DataType) => {
       </ImageContainer>
       <p>{name}</p>
       <p>{category}</p>
-      <p>₦ {price}</p>
+      <p>{formatCurrency(price)}</p>
       <button type="button">Add to Cart</button>
     </Container>
   );
