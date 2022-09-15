@@ -59,7 +59,7 @@ const Sidebar = () => {
         <CategoryTitle>CATEGORY</CategoryTitle>
         <CategoryList>
           <CategoryItem>
-            <Link to="/products/computer-mouse">Computer Mouse</Link>
+            <Link to="/products/mouse">Computer Mouse</Link>
           </CategoryItem>
           <CategoryItem>
             <Link to="/products/game-headphones">Game Headphones</Link>

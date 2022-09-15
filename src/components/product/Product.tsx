@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 import formatCurrency from "../../utils/CurrencyFormatter";
@@ -15,6 +16,11 @@ const Container = styled.div`
 
   &:hover {
     outline: 0.206875rem solid rgba(255, 255, 255, 0.5);
+  }
+
+  a {
+    color: #fff;
+    text-decoration: none;
   }
 `;
 
@@ -47,7 +53,9 @@ const Product = ({ id, name, category, price, stock, img }: DataType) => {
         <Image src={img} alt={name} />
       </ImageContainer>
       <p>{name}</p>
-      <p>{category}</p>
+      <Link to={`/products/${category.toLowerCase().replaceAll(" ", "-")}`}>
+        <p>{category}</p>
+      </Link>
       <p>{formatCurrency(price)}</p>
       <button type="button">Add to Cart</button>
     </Container>
