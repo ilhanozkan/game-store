@@ -2,8 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-  height: 5.88rem;
-  background-color: #767676;
+  min-height: 5.88rem;
+  background-color: #191919;
+  color: #fff;
 `;
 
 const Footer = () => {
