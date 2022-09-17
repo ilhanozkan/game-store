@@ -9,7 +9,7 @@ import App from "./App";
 import { GameStoreProvider } from "./context/GameStoreContext";
 
 const client = new ApolloClient({
-  uri: "http://localhost:5000/",
+  uri: process.env.REACT_APP_API_URL,
   cache: new InMemoryCache(),
 });
 
