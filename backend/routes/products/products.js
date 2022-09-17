@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-let dummyData = require("../../data/dummyData.json");
+let dummyData = require("../../datasources/dummyData.json");
 const Product = require("../../models/Product");
 
 router.get("/", (req, res) => {
-  res.json({ data: dummyData });
+  res.json(dummyData);
 });
 
 router.post("/new", (req, res) => {

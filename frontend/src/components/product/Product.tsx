@@ -33,6 +33,7 @@ const ImageContainer = styled.div`
 `;
 
 const Image = styled.img`
+  max-width: 100%;
   height: min-content;
   transform: translate(0, -1.875rem);
 `;

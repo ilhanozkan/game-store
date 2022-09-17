@@ -10,6 +10,12 @@ const { ApolloServer } = require("apollo-server");
 // Apollo GraphQL type definitions
 const typeDefs = require("./schema");
 
+// Apollo GraphQL resolvers
+const resolvers = require("./resolvers");
+
+// Apollo GraphQL datasources
+const ProductsAPI = require("./datasources/productsApi");
+
 // Routes
 const UsersRoute = require("./routes/users/users");
 const ProductsRoutes = require("./routes/products/products.js");
@@ -22,21 +28,13 @@ app.listen(process.env.PORT || "8000", (err) =>
   console.log(`backend is running on port ${process.env.PORT || 8000}`)
 );
 
-const mocks = {
-  Query: () => ({
-    products: () => [...new Array(8)],
-  }),
-  Product: () => ({
-    id: () => Math.floor(Math.random() * 1000),
-    name: () => "Oculus Quest",
-    category: () => "VR Glasses",
-    price: () => 25000,
-    stock: () => 10,
-    img: () => "/fake-data-images/oculus-quest-vr-glasses.png",
-  }),
-};
-
-const server = new ApolloServer({ typeDefs, mocks });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  dataSources: () => {
+    return { productsAPI: new ProductsAPI() };
+  },
+});
 
 server.listen(process.env.APOLLO_PORT || 4000).then(() => {
   console.log(`
