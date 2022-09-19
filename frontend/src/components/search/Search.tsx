@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { useSearchContext } from "../../context/GameStoreContext";
+import { useAppContext } from "../../context/GameStoreContext";
 
 const Search = () => {
-  const { setSearchParams } = useSearchContext();
+  const { setSearchParams } = useAppContext();
   const [inputValue, setInputValue] = useState("");
   const location = useLocation();
   const navigate = useNavigate();

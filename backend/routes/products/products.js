@@ -9,20 +9,29 @@ router.get("/", (req, res) => {
 });
 
 router.post("/new", (req, res) => {
-  const { name, category, price, stock, img, description, spesifications } =
-    req.body;
-
-  const testProd = new Product(
+  const {
     name,
     category,
     price,
     stock,
     img,
     description,
+    spesifications,
+    stars,
+  } = req.body;
+
+  const newProd = new Product(
+    name,
+    category,
+    price,
+    stock,
+    stars,
+    img,
+    description,
     spesifications
   );
 
-  dummyData = dummyData.concat(testProd);
+  dummyData = dummyData.concat(newProd);
 
   res.status(201).json({ message: "Product created" });
 });

@@ -4,7 +4,7 @@ import Fuse from "fuse.js";
 import { useQuery, gql } from "@apollo/client";
 
 import Product from "../product/Product";
-import { useSearchContext } from "../../context/GameStoreContext";
+import { useAppContext } from "../../context/GameStoreContext";
 
 const PRODUCTS_QUERY = gql`
   query getProducts {
@@ -26,6 +26,7 @@ type ProductsDataType = {
   price: number;
   stock: number;
   img: string;
+  cartQuantity: number;
 };
 
 type ProductsType = {
@@ -39,7 +40,7 @@ const Container = styled.div`
 
 const Products = () => {
   const { loading, error, data } = useQuery<ProductsType>(PRODUCTS_QUERY);
-  const { searchParams } = useSearchContext();
+  const { searchParams } = useAppContext();
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
@@ -55,27 +56,9 @@ const Products = () => {
       {fuse.search(searchParams.get("sr") || "").length > 0
         ? fuse
             .search(searchParams.get("sr") || "")
-            .map((prod: any) => (
-              <Product
-                key={prod.item.id}
-                id={prod.item.id}
-                name={prod.item.name}
-                category={prod.item.category}
-                price={prod.item.price}
-                stock={prod.item.stock}
-                img={prod.item.img}
-              />
-            ))
+            .map((prod: any) => <Product key={prod.item.id} data={prod.item} />)
         : data?.products?.map((prod: any) => (
-            <Product
-              key={prod.id}
-              id={prod.id}
-              name={prod.name}
-              category={prod.category}
-              price={prod.price}
-              stock={prod.stock}
-              img={prod.img}
-            />
+            <Product key={prod.id} data={prod} />
           ))}
     </Container>
   );

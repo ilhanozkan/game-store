@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { useAppContext } from "../../context/GameStoreContext";
 
 import formatCurrency from "../../utils/CurrencyFormatter";
 
@@ -45,9 +46,52 @@ type DataType = {
   price: number;
   stock: number;
   img: string;
+  cartQuantity: number;
 };
 
-const Product = ({ id, name, category, price, stock, img }: DataType) => {
+const Product = (data: { data: DataType }) => {
+  // eslint-disable-next-line react/destructuring-assignment
+  const prod = JSON.parse(JSON.stringify(data.data));
+  const { id, name, category, price, stock, img } = prod;
+  const {
+    setCartList,
+    cartList,
+    increaseQuantityInCart,
+    decreaseQuantityInCart,
+  } = useAppContext();
+  const [isActiveQuantityButtons, setIsActiveQuantityButtons] = useState(false);
+  const [quantityInCart, setQuantityInCart] = useState(0);
+
+  const addToCart = (e: any) => {
+    switch (e.target.name) {
+      case "init":
+        setIsActiveQuantityButtons(true);
+
+        increaseQuantityInCart(id);
+        setQuantityInCart(1);
+        prod.cartQuantity = 1;
+
+        setCartList((prev: Array<DataType> | []) => [...prev, prod]);
+        break;
+      case "increase":
+        setQuantityInCart(quantityInCart + 1);
+        increaseQuantityInCart(id);
+        break;
+      case "decrease":
+        if (quantityInCart == 1) {
+          setQuantityInCart(quantityInCart - 1);
+          setCartList(cartList.filter((cart: DataType) => cart.id != id));
+          setIsActiveQuantityButtons(false);
+        } else {
+          setQuantityInCart(quantityInCart - 1);
+          decreaseQuantityInCart(id);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Container>
       <ImageContainer>
@@ -58,7 +102,21 @@ const Product = ({ id, name, category, price, stock, img }: DataType) => {
         <p>{category}</p>
       </Link>
       <p>{formatCurrency(price)}</p>
-      <button type="button">Add to Cart</button>
+      {isActiveQuantityButtons ? (
+        <div>
+          <button type="button" name="decrease" onClick={addToCart}>
+            -
+          </button>
+          <span>{quantityInCart}</span>
+          <button type="button" name="increase" onClick={addToCart}>
+            +
+          </button>
+        </div>
+      ) : (
+        <button type="button" name="init" onClick={addToCart}>
+          Add to Cart
+        </button>
+      )}
     </Container>
   );
 };
