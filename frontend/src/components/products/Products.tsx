@@ -5,6 +5,7 @@ import { useQuery, gql } from "@apollo/client";
 
 import Product from "../product/Product";
 import { useAppContext } from "../../context/GameStoreContext";
+import Loading from "../loading/Loading";
 
 const PRODUCTS_QUERY = gql`
   query getProducts {
@@ -42,7 +43,7 @@ const Products = () => {
   const { loading, error, data } = useQuery<ProductsType>(PRODUCTS_QUERY);
   const { searchParams } = useAppContext();
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
   if (error) return <p>Error :(</p>;
 
   const options = {

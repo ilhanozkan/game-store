@@ -9,7 +9,7 @@ const Header = () => {
   const [totalPrice, setTotalPrice] = useState("0");
 
   useEffect(() => {
-    setTotalPrice((prevPrice) =>
+    setTotalPrice(() =>
       formatCurrency(
         cartList.reduce(
           (prev: number, curr: any) => prev + curr.cartQuantity * curr.price,
@@ -22,8 +22,12 @@ const Header = () => {
   return (
     <div>
       <Search />
-      <p>{getCartLength()}</p>
-      <p>total: {totalPrice}</p>
+      {getCartLength() && (
+        <>
+          <p>{getCartLength()}</p>
+          <p>total: {totalPrice}</p>
+        </>
+      )}
     </div>
   );
 };
