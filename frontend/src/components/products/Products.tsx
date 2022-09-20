@@ -6,6 +6,7 @@ import { useQuery, gql } from "@apollo/client";
 import Product from "../product/Product";
 import { useAppContext } from "../../context/GameStoreContext";
 import Loading from "../loading/Loading";
+import { ProductsType } from "../../types/Types";
 
 const PRODUCTS_QUERY = gql`
   query getProducts {
@@ -19,20 +20,6 @@ const PRODUCTS_QUERY = gql`
     }
   }
 `;
-
-type ProductsDataType = {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  img: string;
-  cartQuantity: number;
-};
-
-type ProductsType = {
-  products: ProductsDataType[];
-};
 
 const Container = styled.div`
   display: flex;

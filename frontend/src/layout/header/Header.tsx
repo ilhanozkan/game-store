@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/GameStoreContext";
 import Search from "../../components/search/Search";
 import formatCurrency from "../../utils/CurrencyFormatter";
+import { DataType } from "../../types/Types";
 
 const Header = () => {
   const { getCartLength, cartList } = useAppContext();
@@ -12,7 +13,8 @@ const Header = () => {
     setTotalPrice(() =>
       formatCurrency(
         cartList.reduce(
-          (prev: number, curr: any) => prev + curr.cartQuantity * curr.price,
+          (prev: number, curr: DataType) =>
+            prev + curr.cartQuantity * curr.price,
           0
         )
       )

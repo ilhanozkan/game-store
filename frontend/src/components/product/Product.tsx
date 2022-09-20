@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { useAppContext } from "../../context/GameStoreContext";
 
+import { useAppContext } from "../../context/GameStoreContext";
 import formatCurrency from "../../utils/CurrencyFormatter";
+import { DataType } from "../../types/Types";
 
 const Container = styled.div`
   width: 19.725625rem;
@@ -38,16 +39,6 @@ const Image = styled.img`
   height: min-content;
   transform: translate(0, -2.58461957rem);
 `;
-
-type DataType = {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  img: string;
-  cartQuantity: number;
-};
 
 const Product = (data: { data: DataType }) => {
   // eslint-disable-next-line react/destructuring-assignment

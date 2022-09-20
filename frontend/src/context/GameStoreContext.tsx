@@ -1,26 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-type DataType = {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  img: string;
-  cartQuantity: number;
-};
-
-type ContextType = {
-  searchParams: URLSearchParams;
-  setSearchParams: (params: { [key: string]: string }) => void;
-  // cartList: [] | Array<DataType>;
-  cartList: any;
-  setCartList: React.Dispatch<React.SetStateAction<any>>;
-  getCartLength: () => number;
-  increaseQuantityInCart: (id: string) => void;
-  decreaseQuantityInCart: (id: string) => void;
-};
+import { DataType, ContextType } from "../types/Types";
 
 export const GameStoreContext = createContext({} as ContextType);
 
@@ -30,14 +11,14 @@ export const GameStoreProvider = ({ children }: any) => {
 
   const getCartLength = () => {
     return cartList.reduce(
-      (prev: number, curr: any) => prev + curr.cartQuantity,
+      (prev: number, curr: DataType) => prev + curr.cartQuantity,
       0
     );
   };
 
   const increaseQuantityInCart = (id: string) => {
     setCartList((prev: any) => {
-      return prev.map((item: any) => {
+      return prev.map((item: DataType) => {
         if (item?.id == id) {
           return { ...item, cartQuantity: item.cartQuantity + 1 };
         }
@@ -48,7 +29,7 @@ export const GameStoreProvider = ({ children }: any) => {
 
   const decreaseQuantityInCart = (id: string) => {
     setCartList((prev: any) => {
-      return prev.map((item: any) => {
+      return prev.map((item: DataType) => {
         if (item?.id == id) {
           return { ...item, cartQuantity: item.cartQuantity - 1 };
         }
