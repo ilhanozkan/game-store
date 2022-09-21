@@ -3,6 +3,7 @@ const { json } = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const dotenv = require("dotenv").config();
+var cors = require("cors");
 
 // Apollo GraphQL server
 const { ApolloServer } = require("apollo-server");
@@ -18,9 +19,11 @@ const ProductsAPI = require("./datasources/productsApi");
 
 // Routes
 const UsersRoute = require("./routes/users/users");
-const ProductsRoutes = require("./routes/products/products.js");
+const { ProductsRoutes } = require("./routes/products/products.js");
+const UserAPI = require("./datasources/userApi");
 
 app.use(json());
+app.use(cors());
 app.use("/products", ProductsRoutes);
 app.use("/users", UsersRoute);
 
@@ -32,7 +35,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   dataSources: () => {
-    return { productsAPI: new ProductsAPI() };
+    return { productsAPI: new ProductsAPI(), userAPI: new UserAPI() };
   },
 });
 
