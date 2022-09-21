@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { useAppContext } from "../../context/GameStoreContext";
 
 import LogoImg from "../../assets/logo.svg";
 import CatalogButton from "../../components/catalogButton/CatalogButton";
@@ -35,6 +36,8 @@ const CategoryList = styled.ul``;
 const CategoryItem = styled.li``;
 
 const Sidebar = () => {
+  const { favorites } = useAppContext();
+
   return (
     <Container>
       <Link to="/">
@@ -49,7 +52,9 @@ const Sidebar = () => {
           <Link to="/search">Search</Link>
         </NavItem>
         <NavItem>
-          <Link to="/favorite">Favorite</Link>
+          <Link to="/favorite">
+            Favorite{favorites.length > 0 && ` (${favorites.length})`}
+          </Link>
         </NavItem>
         <NavItem>
           <Link to="/balance">Balance</Link>

@@ -10,7 +10,7 @@ import Search from "../pages/search/Search";
 
 // Products pages
 import Products from "../components/products/Products";
-import Product from "../components/product/Product";
+// import Product from "../components/product/Product";
 import NewProduct from "../pages/newProduct/NewProduct";
 
 // Auth pages

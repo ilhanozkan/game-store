@@ -1,13 +1,42 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { useQuery, gql } from "@apollo/client";
 
 import { DataType, ContextType } from "../types/Types";
 
 export const GameStoreContext = createContext({} as ContextType);
 
+const uid = "1";
+
+const USER_QUERY = gql`
+  query getUser {
+    user(id: "1") {
+      favorites
+    }
+  }
+`;
+
 export const GameStoreProvider = ({ children }: any) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [cartList, setCartList] = useState([]);
+  const { loading, data } = useQuery(USER_QUERY);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favoritesList, setFavoritesList] = useState<Array<DataType>>([]);
+
+  useEffect(() => {
+    if (data) setFavorites(data?.user.favorites);
+  }, [data]);
+
+  useEffect(() => {
+    if (!loading) {
+      axios.post(
+        `${process.env.REACT_APP_REST_API_URL}/users/${uid}/favorite` ||
+          `http://localhost:5000/users/${uid}/favorite`,
+        { favorites }
+      );
+    }
+  }, [favorites]);
 
   const getCartLength = () => {
     return cartList.reduce(
@@ -38,6 +67,14 @@ export const GameStoreProvider = ({ children }: any) => {
     });
   };
 
+  const favorite = (id: string) => {
+    setFavorites((prev: Array<string> | []) => {
+      if (favorites.includes(id))
+        return favorites.filter((selection) => selection != id);
+      return [...prev, id];
+    });
+  };
+
   return (
     <GameStoreContext.Provider
       // eslint-disable-next-line react/jsx-no-constructed-context-values
@@ -49,6 +86,8 @@ export const GameStoreProvider = ({ children }: any) => {
         getCartLength,
         increaseQuantityInCart,
         decreaseQuantityInCart,
+        favorite,
+        favorites,
       }}
     >
       {children}

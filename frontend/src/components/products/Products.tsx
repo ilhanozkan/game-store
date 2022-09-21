@@ -4,8 +4,8 @@ import Fuse from "fuse.js";
 import { useQuery, gql } from "@apollo/client";
 
 import Product from "../product/Product";
-import { useAppContext } from "../../context/GameStoreContext";
 import Loading from "../loading/Loading";
+import { useAppContext } from "../../context/GameStoreContext";
 import { ProductsType } from "../../types/Types";
 
 const PRODUCTS_QUERY = gql`

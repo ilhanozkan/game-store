@@ -6,6 +6,18 @@ import { useAppContext } from "../../context/GameStoreContext";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import { DataType } from "../../types/Types";
 
+const FavoriteButton = styled.button`
+  position: absolute;
+  font-size: 1.2rem;
+  opacity: 0;
+  z-index: 1;
+  top: 0.35rem;
+  right: 0.6rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+`;
+
 const Container = styled.div`
   width: 19.725625rem;
   height: 23.209375rem;
@@ -15,9 +27,14 @@ const Container = styled.div`
   margin-bottom: 4.38rem;
   margin-right: 2.360625rem;
   transition: outline 30ms ease-in;
+  position: relative;
 
   &:hover {
     outline: 0.206875rem solid rgba(255, 255, 255, 0.5);
+
+    ${FavoriteButton} {
+      opacity: 1;
+    }
   }
 
   a {
@@ -49,6 +66,8 @@ const Product = (data: { data: DataType }) => {
     cartList,
     increaseQuantityInCart,
     decreaseQuantityInCart,
+    favorite,
+    favorites,
   } = useAppContext();
   const [isActiveQuantityButtons, setIsActiveQuantityButtons] = useState(false);
   const [quantityInCart, setQuantityInCart] = useState(0);
@@ -87,6 +106,9 @@ const Product = (data: { data: DataType }) => {
 
   return (
     <Container>
+      <FavoriteButton onClick={() => favorite(id)}>
+        {favorites.includes(id) ? "💜" : "🖤"}
+      </FavoriteButton>
       <ImageContainer>
         <Image src={img} alt={name} />
       </ImageContainer>

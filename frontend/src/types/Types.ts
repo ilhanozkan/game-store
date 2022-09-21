@@ -12,6 +12,10 @@ export type ProductsType = {
   products: DataType[];
 };
 
+export type FavsType = {
+  userFavs: DataType[];
+};
+
 export type ContextType = {
   searchParams: URLSearchParams;
   setSearchParams: (params: { [key: string]: string }) => void;
@@ -21,4 +25,6 @@ export type ContextType = {
   getCartLength: () => number;
   increaseQuantityInCart: (id: string) => void;
   decreaseQuantityInCart: (id: string) => void;
+  favorite: (id: string) => void;
+  favorites: string[];
 };
