@@ -1,5 +1,4 @@
 import React from "react";
-import { useQuery, gql } from "@apollo/client";
 import styled from "styled-components";
 
 import Loading from "../../components/loading/Loading";
@@ -16,6 +15,9 @@ const Favorite = () => {
 
   if (favsLoading) return <Loading />;
   if (favsError) return <p>Error :(</p>;
+
+  if (favoritesList.length == 0)
+    return <p>You don&apos;t have a favorite product.</p>;
 
   return (
     <Container>

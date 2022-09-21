@@ -1,25 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import Fuse from "fuse.js";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 
 import Product from "../product/Product";
 import Loading from "../loading/Loading";
 import { useAppContext } from "../../context/GameStoreContext";
 import { ProductsType } from "../../types/Types";
-
-const PRODUCTS_QUERY = gql`
-  query getProducts {
-    products {
-      id
-      name
-      category
-      stock
-      price
-      img
-    }
-  }
-`;
+// Queries
+import { PRODUCTS_QUERY } from "../../queries/Queries";
 
 const Container = styled.div`
   display: flex;

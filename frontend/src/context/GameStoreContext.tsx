@@ -1,34 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 
 import { DataType, ContextType, FavsType } from "../types/Types";
-
-export const GameStoreContext = createContext({} as ContextType);
+import { USER_QUERY, USER_FAVS_QUERY } from "../queries/Queries";
 
 const uid = "1";
 
-const USER_QUERY = gql`
-  query getUser {
-    user(id: "1") {
-      favorites
-    }
-  }
-`;
-
-const USER_FAVS_QUERY = gql`
-  query getUserFavs {
-    userFavs(id: "1") {
-      id
-      name
-      category
-      price
-      stock
-      img
-    }
-  }
-`;
+export const GameStoreContext = createContext({} as ContextType);
 
 export const GameStoreProvider = ({ children }: any) => {
   const [searchParams, setSearchParams] = useSearchParams();
