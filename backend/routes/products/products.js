@@ -8,6 +8,12 @@ router.get("/", (req, res) => {
   res.json(dummyData);
 });
 
+router.get("/:id", (req, res) => {
+  const id = req.params.id;
+
+  res.json(dummyData.find((product) => product.id === id));
+});
+
 router.post("/new", (req, res) => {
   const {
     name,
@@ -36,4 +42,4 @@ router.post("/new", (req, res) => {
   res.status(201).json({ message: "Product created" });
 });
 
-module.exports = router;
+module.exports = { ProductsRoutes: router, dummyData };
