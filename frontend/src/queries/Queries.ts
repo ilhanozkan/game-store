@@ -13,6 +13,19 @@ export const PRODUCTS_QUERY = gql`
   }
 `;
 
+export const PRODUCTS_BY_CATEGORY_QUERY = gql`
+  query getProductsByCategory($category: String!) {
+    productsByCategory(category: $category) {
+      id
+      name
+      category
+      stock
+      price
+      img
+    }
+  }
+`;
+
 export const USER_QUERY = gql`
   query getUser {
     user(id: "1") {

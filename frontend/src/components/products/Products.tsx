@@ -1,14 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Fuse from "fuse.js";
 import { useQuery } from "@apollo/client";
+import { useLocation } from "react-router-dom";
 
 import Product from "../product/Product";
 import Loading from "../loading/Loading";
 import { useAppContext } from "../../context/GameStoreContext";
 import { ProductsType } from "../../types/Types";
 // Queries
-import { PRODUCTS_QUERY } from "../../queries/Queries";
+import {
+  PRODUCTS_QUERY,
+  PRODUCTS_BY_CATEGORY_QUERY,
+} from "../../queries/Queries";
 
 const Container = styled.div`
   display: flex;
@@ -16,8 +20,22 @@ const Container = styled.div`
 `;
 
 const Products = () => {
-  const { loading, error, data } = useQuery<ProductsType>(PRODUCTS_QUERY);
   const { searchParams } = useAppContext();
+  const location = useLocation();
+  const [cat, setCat] = useState("");
+  const { loading, error, data } = useQuery<ProductsType>(PRODUCTS_QUERY);
+  const {
+    loading: loadingProductsByCategory,
+    error: errorProductsByCategory,
+    data: productsByCategory,
+  } = useQuery(PRODUCTS_BY_CATEGORY_QUERY, {
+    variables: { category: cat },
+  });
+
+  useEffect(() => {
+    if (location.pathname.includes("/products/"))
+      setCat(location.pathname.split("/")[2] || "");
+  }, [location]);
 
   if (loading) return <Loading />;
   if (error) return <p>Error :(</p>;
@@ -27,6 +45,29 @@ const Products = () => {
   };
 
   const fuse = new Fuse(data?.products || [], options);
+
+  if (cat.length > 0) {
+    if (loadingProductsByCategory) return <Loading />;
+    if (errorProductsByCategory) return <p>Error :(</p>;
+    if (productsByCategory?.productsByCategory.length == 0)
+      return (
+        <>
+          <p>Category: {cat}</p>
+          <p>We couldn&apos;t find any products</p>{" "}
+        </>
+      );
+
+    return (
+      <>
+        <p>Category: {cat}</p>
+        <Container>
+          {productsByCategory?.productsByCategory?.map((prod: any) => (
+            <Product key={prod.id} data={prod} />
+          ))}
+        </Container>
+      </>
+    );
+  }
 
   return (
     <Container>

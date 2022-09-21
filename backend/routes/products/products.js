@@ -14,6 +14,18 @@ router.get("/:id", (req, res) => {
   res.json(dummyData.find((product) => product.id === id));
 });
 
+router.get("/category/:category", (req, res) => {
+  const category = req.params.category;
+
+  res.json(
+    dummyData.filter((product) => {
+      return (
+        product.category.toLocaleLowerCase().replaceAll(" ", "-") == category
+      );
+    })
+  );
+});
+
 router.post("/new", (req, res) => {
   const {
     name,

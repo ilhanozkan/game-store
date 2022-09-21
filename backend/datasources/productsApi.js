@@ -13,6 +13,10 @@ class ProductsAPI extends RESTDataSource {
   async getProduct(id) {
     return this.get(`${encodeURIComponent(id)}`);
   }
+
+  async getProductsByCategory(category) {
+    return this.get(`category/${encodeURIComponent(category)}`);
+  }
 }
 
 module.exports = ProductsAPI;

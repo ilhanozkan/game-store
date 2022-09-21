@@ -33,34 +33,34 @@
   },
   {
     "id": "5",
-    "name": "Oculus Quest",
-    "category": "VR Glasses",
-    "price": 25000,
+    "name": "Defender X7",
+    "category": "Gamepads",
+    "price": 13000,
     "stock": 10,
-    "img": "/fake-data-images/oculus-quest-vr-glasses.png"
+    "img": "/fake-data-images/defender-x7.png"
   },
   {
     "id": "6",
-    "name": "Rapoo V52S - Rapoo",
-    "category": "Keyboards",
-    "price": 15000,
+    "name": "Logitech G305",
+    "category": "Mouse",
+    "price": 25000,
     "stock": 10,
-    "img": "/fake-data-images/rgb-keyboard.png"
+    "img": "/fake-data-images/logitech-g305.png"
   },
   {
     "id": "7",
-    "name": "JBL One",
-    "category": "Headphones",
+    "name": "PC Builder",
+    "category": "Computer",
     "price": 25000,
     "stock": 10,
-    "img": "/fake-data-images/jbl-one.png"
+    "img": "/fake-data-images/pc-builder.png"
   },
   {
     "id": "8",
-    "name": "Game max S-RGB",
-    "category": "Mouse",
-    "price": 5000,
+    "name": "Defender XB",
+    "category": "Gamepads",
+    "price": 25000,
     "stock": 10,
-    "img": "/fake-data-images/rgb-gaming-mouse.png"
+    "img": "/fake-data-images/defender-xb.png"
   }
 ]
