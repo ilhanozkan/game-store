@@ -52,14 +52,24 @@ const Products = () => {
     if (productsByCategory?.productsByCategory.length == 0)
       return (
         <>
-          <p>Category: {cat}</p>
-          <p>We couldn&apos;t find any products</p>{" "}
+          <h2>
+            {cat
+              .split("-")
+              .map((e) => e.toUpperCase())
+              .join(" ")}
+          </h2>
+          <p>We couldn&apos;t find any products</p>
         </>
       );
 
     return (
       <>
-        <p>Category: {cat}</p>
+        <h2>
+          {cat
+            .split("-")
+            .map((e) => e.toUpperCase())
+            .join(" ")}
+        </h2>
         <Container>
           {productsByCategory?.productsByCategory?.map((prod: any) => (
             <Product key={prod.id} data={prod} />
