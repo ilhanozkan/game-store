@@ -68,6 +68,8 @@ const Product = (data: { data: DataType }) => {
     decreaseQuantityInCart,
     favorite,
     favorites,
+    favoritesList,
+    setFavoritesList,
   } = useAppContext();
   const [isActiveQuantityButtons, setIsActiveQuantityButtons] = useState(false);
   const [quantityInCart, setQuantityInCart] = useState(0);
@@ -102,11 +104,21 @@ const Product = (data: { data: DataType }) => {
     }
   };
 
+  const handleFavorite = () => {
+    favorite(id);
+    setFavoritesList((prev) => {
+      if (favorites.includes(id))
+        return favoritesList.filter((item) => item.id != id);
+
+      return [...prev, prod];
+    });
+  };
+
   if (stock <= 0) return null;
 
   return (
     <Container>
-      <FavoriteButton onClick={() => favorite(id)}>
+      <FavoriteButton onClick={handleFavorite}>
         {favorites.includes(id) ? "💜" : "🖤"}
       </FavoriteButton>
       <ImageContainer>

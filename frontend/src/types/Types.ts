@@ -1,3 +1,5 @@
+import { ApolloError } from "@apollo/client";
+
 export type DataType = {
   id: string;
   name: string;
@@ -27,4 +29,8 @@ export type ContextType = {
   decreaseQuantityInCart: (id: string) => void;
   favorite: (id: string) => void;
   favorites: string[];
+  favoritesList: DataType[];
+  setFavoritesList: React.Dispatch<React.SetStateAction<DataType[]>>;
+  favsLoading: boolean;
+  favsError: ApolloError | undefined;
 };

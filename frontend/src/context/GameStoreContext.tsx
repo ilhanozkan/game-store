@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { useQuery, gql } from "@apollo/client";
 
-import { DataType, ContextType } from "../types/Types";
+import { DataType, ContextType, FavsType } from "../types/Types";
 
 export const GameStoreContext = createContext({} as ContextType);
 
@@ -17,16 +17,36 @@ const USER_QUERY = gql`
   }
 `;
 
+const USER_FAVS_QUERY = gql`
+  query getUserFavs {
+    userFavs(id: "1") {
+      id
+      name
+      category
+      price
+      stock
+      img
+    }
+  }
+`;
+
 export const GameStoreProvider = ({ children }: any) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [cartList, setCartList] = useState([]);
   const { loading, data } = useQuery(USER_QUERY);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [favoritesList, setFavoritesList] = useState<Array<DataType>>([]);
+  const favsLoading = useQuery<FavsType>(USER_FAVS_QUERY).loading;
+  const favsError = useQuery<FavsType>(USER_FAVS_QUERY).error;
+  const favsData = useQuery<FavsType>(USER_FAVS_QUERY).data;
 
   useEffect(() => {
-    if (data) setFavorites(data?.user.favorites);
+    if (data) setFavorites(data.user.favorites);
   }, [data]);
+
+  useEffect(() => {
+    if (favsData) setFavoritesList(favsData.userFavs);
+  }, [favsData]);
 
   useEffect(() => {
     if (!loading) {
@@ -88,6 +108,10 @@ export const GameStoreProvider = ({ children }: any) => {
         decreaseQuantityInCart,
         favorite,
         favorites,
+        favoritesList,
+        setFavoritesList,
+        favsLoading,
+        favsError,
       }}
     >
       {children}

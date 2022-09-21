@@ -4,20 +4,7 @@ import styled from "styled-components";
 
 import Loading from "../../components/loading/Loading";
 import Product from "../../components/product/Product";
-import { FavsType } from "../../types/Types";
-
-const USER_FAVS_QUERY = gql`
-  query getUserFavs {
-    userFavs(id: "1") {
-      id
-      name
-      category
-      price
-      stock
-      img
-    }
-  }
-`;
+import { useAppContext } from "../../context/GameStoreContext";
 
 const Container = styled.div`
   display: flex;
@@ -25,14 +12,14 @@ const Container = styled.div`
 `;
 
 const Favorite = () => {
-  const { loading, error, data } = useQuery<FavsType>(USER_FAVS_QUERY);
+  const { favoritesList, favsLoading, favsError } = useAppContext();
 
-  if (loading) return <Loading />;
-  if (error) return <p>Error :(</p>;
+  if (favsLoading) return <Loading />;
+  if (favsError) return <p>Error :(</p>;
 
   return (
     <Container>
-      {data?.userFavs?.map((prod: any) => (
+      {favoritesList?.map((prod: any) => (
         <Product key={prod.id} data={prod} />
       ))}
     </Container>
