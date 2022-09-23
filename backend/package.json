@@ -1,0 +1,24 @@
+{
+  "name": "game-store-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "Ilhan Ozkan",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-datasource-rest": "^3.7.0",
+    "apollo-server": "^3.10.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "graphql": "^16.6.0",
+    "mongoose": "^6.5.3",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
