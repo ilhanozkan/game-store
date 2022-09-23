@@ -92,7 +92,7 @@ const Header = () => {
         <Profile>
           <Username>Fola</Username>
           <Image
-            src="https://images.unsplash.com/photo-1522529599102-193c0d76b5b6"
+            src="https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&w=100"
             alt="Profile"
           />
         </Profile>
