@@ -16,6 +16,7 @@ import {
 
 const Container = styled.div`
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
 `;
 
@@ -58,7 +59,7 @@ const Products = () => {
               .map((e) => e.toUpperCase())
               .join(" ")}
           </h2>
-          <p>We couldn&apos;t find any products</p>
+          <p>We couldn&apos;t find any products.</p>
         </>
       );
 

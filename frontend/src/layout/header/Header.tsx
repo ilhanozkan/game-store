@@ -6,11 +6,14 @@ import { BsBag } from "react-icons/bs";
 import { useAppContext } from "../../context/GameStoreContext";
 import Search from "../../components/search/Search";
 import formatCurrency from "../../utils/CurrencyFormatter";
+import CartBox from "../../components/cartBox/CartBox";
 import { DataType } from "../../types/Types";
 
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.9375rem;
 `;
 
 const UserSection = styled.div`
@@ -28,15 +31,42 @@ const Username = styled.span`
 `;
 
 const Image = styled.img`
-  width: 3.4327rem;
-  height: 3.4327rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 50%;
   object-fit: cover;
+`;
+
+const Button = styled.button`
+  margin-left: 1rem;
+  position: relative;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+
+  &:last-child {
+    margin-right: 0.5rem;
+  }
+`;
+
+const CartLength = styled.span`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: #cc2431;
+  top: -1.1rem;
+  right: -1.2rem;
 `;
 
 const Header = () => {
   const { getCartLength, cartList } = useAppContext();
   const [totalPrice, setTotalPrice] = useState("0");
+  const [cartBoxActive, setCartBoxActive] = useState(false);
 
   useEffect(() => {
     setTotalPrice(() =>
@@ -52,6 +82,11 @@ const Header = () => {
 
   return (
     <Container>
+      <CartBox
+        active={cartBoxActive}
+        setActive={setCartBoxActive}
+        totalPrice={totalPrice}
+      />
       <Search />
       <UserSection>
         <Profile>
@@ -61,15 +96,14 @@ const Header = () => {
             alt="Profile"
           />
         </Profile>
-        <IoMdNotificationsOutline size="1.390625rem" />
-        <BsBag />
+        <Button>
+          <IoMdNotificationsOutline size="1.75rem" />
+        </Button>
+        <Button onClick={() => setCartBoxActive(true)}>
+          {getCartLength() > 0 && <CartLength>{getCartLength()}</CartLength>}
+          <BsBag size="1.5rem" />
+        </Button>
       </UserSection>
-      {/* {getCartLength() && (
-        <>
-          <p>{getCartLength()}</p>
-          <p>total: {totalPrice}</p>
-        </>
-      )} */}
     </Container>
   );
 };

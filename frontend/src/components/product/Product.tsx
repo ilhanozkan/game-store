@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { TiHeartFullOutline } from "react-icons/ti";
 
 import { useAppContext } from "../../context/GameStoreContext";
 import formatCurrency from "../../utils/CurrencyFormatter";
@@ -24,8 +25,8 @@ const Container = styled.div`
   background: #2d2d2e;
   color: #fff;
   border-radius: 0.42125rem;
-  margin-bottom: 4.38rem;
-  margin-right: 2.360625rem;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
   transition: outline 30ms ease-in;
   position: relative;
 
@@ -45,7 +46,7 @@ const Container = styled.div`
 
 const ImageContainer = styled.div`
   width: 100%;
-  height: 13.75rem;
+  height: 11.25rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,6 +56,84 @@ const Image = styled.img`
   max-width: 100%;
   height: min-content;
   transform: translate(0, -2.58461957rem);
+`;
+
+const CardInfo = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const Title = styled.h3`
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+`;
+
+const Category = styled.h4`
+  margin-bottom: 0.625rem;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const Price = styled.p`
+  margin-bottom: 0.625rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #618dff;
+`;
+
+const CartButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  width: 8.5rem;
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+  }
+`;
+
+const IncreaseButton = styled.button`
+  background: none;
+  width: 2.125rem;
+  height: 2.125rem;
+  font-size: 1.625rem;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  transition: background-color 75ms ease-in;
+
+  &:hover {
+    background-color: #618dff;
+  }
+`;
+
+const DecreaseButton = styled.button`
+  background: none;
+  width: 2.125rem;
+  height: 2.125rem;
+  font-size: 1.625rem;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  transition: background-color 75ms ease-in;
+
+  &:hover {
+    background-color: #618dff;
+  }
+`;
+
+const AddButton = styled.button`
+  font-size: 0.9rem;
+  border: none;
 `;
 
 const Product = (data: { data: DataType }) => {
@@ -119,31 +198,42 @@ const Product = (data: { data: DataType }) => {
   return (
     <Container>
       <FavoriteButton onClick={handleFavorite}>
-        {favorites.includes(id) ? "💜" : "🖤"}
+        {favorites.includes(id) ? (
+          <TiHeartFullOutline size="1.75rem" fill="#ff2f6c" />
+        ) : (
+          <TiHeartFullOutline size="1.75rem" fill="#cfdcff" opacity={0.4} />
+        )}
       </FavoriteButton>
       <ImageContainer>
         <Image src={img} alt={name} />
       </ImageContainer>
-      <p>{name}</p>
-      <Link to={`/products/${category.toLowerCase().replaceAll(" ", "-")}`}>
-        <p>{category}</p>
-      </Link>
-      <p>{formatCurrency(price)}</p>
-      {isActiveQuantityButtons ? (
-        <div>
-          <button type="button" name="decrease" onClick={addToCart}>
-            -
-          </button>
-          <span>{quantityInCart}</span>
-          <button type="button" name="increase" onClick={addToCart}>
-            +
-          </button>
-        </div>
-      ) : (
-        <button type="button" name="init" onClick={addToCart}>
-          Add to Cart
-        </button>
-      )}
+      <CardInfo>
+        <Title>{name}</Title>
+        <Link to={`/products/${category.toLowerCase().replaceAll(" ", "-")}`}>
+          <Category>{category}</Category>
+        </Link>
+        <Price>{formatCurrency(price)}</Price>
+        {isActiveQuantityButtons ? (
+          <CartButtons>
+            <DecreaseButton type="button" name="decrease" onClick={addToCart}>
+              -
+            </DecreaseButton>
+            <span>{quantityInCart}</span>
+            <IncreaseButton type="button" name="increase" onClick={addToCart}>
+              +
+            </IncreaseButton>
+          </CartButtons>
+        ) : (
+          <CartButtons>
+            <IncreaseButton type="button" name="init" onClick={addToCart}>
+              +
+            </IncreaseButton>
+            <AddButton type="button" name="init" onClick={addToCart}>
+              Add to Cart
+            </AddButton>
+          </CartButtons>
+        )}
+      </CardInfo>
     </Container>
   );
 };

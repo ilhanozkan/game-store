@@ -18,6 +18,12 @@ export type FavsType = {
   userFavs: DataType[];
 };
 
+export type CartBoxType = {
+  active: boolean;
+  setActive: React.Dispatch<React.SetStateAction<boolean>>;
+  totalPrice: string;
+};
+
 export type ContextType = {
   searchParams: URLSearchParams;
   setSearchParams: (params: { [key: string]: string }) => void;

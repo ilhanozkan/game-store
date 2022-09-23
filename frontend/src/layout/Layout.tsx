@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-// import CartPanel from "./cartPanel/CartPanel";
 import Header from "./header/Header";
 import Footer from "./footer/Footer";
 import Sidebar from "./sidebar/Sidebar";
@@ -30,7 +29,9 @@ const TopSide = styled.div`
   grid-template-columns: 16.5625rem auto;
 `;
 
-const RightSide = styled.div``;
+const RightSide = styled.div`
+  padding: 2.875rem 3.9375rem 2.875rem 2.875rem;
+`;
 
 const Layout = () => {
   return (
@@ -40,7 +41,6 @@ const Layout = () => {
         <RightSide>
           <Header />
           <AppRoutes />
-          {/* <CartPanel /> */}
         </RightSide>
       </TopSide>
       <Footer />
