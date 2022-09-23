@@ -20,6 +20,10 @@ const Container = styled.div`
   flex-wrap: wrap;
 `;
 
+const CategoryTitle = styled.h2`
+  margin-bottom: 2rem;
+`;
+
 const Products = () => {
   const { searchParams } = useAppContext();
   const location = useLocation();
@@ -53,24 +57,24 @@ const Products = () => {
     if (productsByCategory?.productsByCategory.length == 0)
       return (
         <>
-          <h2>
+          <CategoryTitle>
             {cat
               .split("-")
               .map((e) => e.toUpperCase())
               .join(" ")}
-          </h2>
+          </CategoryTitle>
           <p>We couldn&apos;t find any products.</p>
         </>
       );
 
     return (
       <>
-        <h2>
+        <CategoryTitle>
           {cat
             .split("-")
             .map((e) => e.toUpperCase())
             .join(" ")}
-        </h2>
+        </CategoryTitle>
         <Container>
           {productsByCategory?.productsByCategory?.map((prod: any) => (
             <Product key={prod.id} data={prod} />

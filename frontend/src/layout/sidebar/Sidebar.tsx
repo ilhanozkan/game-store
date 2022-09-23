@@ -18,9 +18,9 @@ import { IoIosHelpBuoy } from "react-icons/io";
 import { FaFantasyFlightGames, FaHandsHelping } from "react-icons/fa";
 
 import { useAppContext } from "../../context/GameStoreContext";
-import LogoImg from "../../assets/logo.svg";
 import CatalogButton from "../../components/catalogButton/CatalogButton";
 import SocialIcons from "../../components/socialIcons/SocialIcons";
+import Logo from "../../components/logo/Logo";
 
 const Container = styled.div`
   padding: 2.875rem 2.1875rem;
@@ -35,16 +35,13 @@ const Container = styled.div`
   }
 `;
 
-const Logo = styled.img`
-  width: 12.3125rem;
-  margin-bottom: 0.625rem;
-`;
-
 const TopNavs = styled.div`
   margin-block: 2rem;
 `;
 
-const Nav = styled.ul``;
+const Nav = styled.ul`
+  margin-top: 0.625rem;
+`;
 
 const NavItem = styled.li`
   a {
@@ -90,7 +87,7 @@ const Sidebar = () => {
   return (
     <Container>
       <Link to="/">
-        <Logo src={LogoImg} />
+        <Logo widthh={12.3125} />
       </Link>
       <Nav>
         <CatalogButton />
