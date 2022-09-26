@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import Product from "../product/Product";
 import Loading from "../loading/Loading";
 import { useAppContext } from "../../context/GameStoreContext";
-import { ProductsType } from "../../types/Types";
+import { ProductsType, DataType } from "../../types/Types";
 // Queries
 import {
   PRODUCTS_QUERY,
@@ -76,7 +76,7 @@ const Products = () => {
             .join(" ")}
         </CategoryTitle>
         <Container>
-          {productsByCategory?.productsByCategory?.map((prod: any) => (
+          {productsByCategory?.productsByCategory?.map((prod: DataType) => (
             <Product key={prod.id} data={prod} />
           ))}
         </Container>
@@ -89,8 +89,10 @@ const Products = () => {
       {fuse.search(searchParams.get("sr") || "").length > 0
         ? fuse
             .search(searchParams.get("sr") || "")
-            .map((prod: any) => <Product key={prod.item.id} data={prod.item} />)
-        : data?.products?.map((prod: any) => (
+            .map((prod: Fuse.FuseResult<DataType>) => (
+              <Product key={prod.item.id} data={prod.item} />
+            ))
+        : data?.products?.map((prod: DataType) => (
             <Product key={prod.id} data={prod} />
           ))}
     </Container>

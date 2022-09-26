@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { useAppContext } from "../../context/GameStoreContext";
-import { CartBoxType } from "../../types/Types";
+import { CartBoxType, DataType } from "../../types/Types";
 
 const Container = styled.div`
   position: absolute;
@@ -35,7 +35,7 @@ const CartBox = ({ active, setActive, totalPrice }: CartBoxType) => {
         <button type="button" onClick={() => setActive(false)}>
           X
         </button>
-        {cartList.map((item: any) => (
+        {cartList.map((item: DataType) => (
           <div key={item.id}>
             <span>{item.name} </span>
             <span>x {item.cartQuantity}</span>
