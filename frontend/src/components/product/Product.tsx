@@ -173,10 +173,10 @@ const Product = (data: { data: DataType }) => {
           setQuantityInCart(quantityInCart - 1);
           setCartList(cartList.filter((cart: DataType) => cart.id != id));
           setIsActiveQuantityButtons(false);
-        } else {
-          setQuantityInCart(quantityInCart - 1);
-          decreaseQuantityInCart(id);
+          return;
         }
+        setQuantityInCart(quantityInCart - 1);
+        decreaseQuantityInCart(id);
         break;
       default:
         break;

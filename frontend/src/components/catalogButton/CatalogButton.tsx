@@ -8,10 +8,8 @@ const Button = styled.button`
   border-radius: 100rem;
   transition: background-color 150ms ease-in;
   font-size: 1rem;
-
-  a {
-    color: #ffffff;
-  }
+  color: #ffffff;
+  cursor: pointer;
 
   &:hover {
     background-color: #567bdc;
@@ -20,9 +18,9 @@ const Button = styled.button`
 
 const CatalogButton = () => {
   return (
-    <Button type="button">
-      <Link to="/catalog">Go to catalog</Link>
-    </Button>
+    <Link to="/catalog">
+      <Button type="button">Go to catalog</Button>
+    </Link>
   );
 };
 

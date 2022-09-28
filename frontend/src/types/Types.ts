@@ -27,8 +27,7 @@ export type CartBoxType = {
 export type ContextType = {
   searchParams: URLSearchParams;
   setSearchParams: (params: { [key: string]: string }) => void;
-  // cartList: [] | Array<DataType>;
-  cartList: any;
+  cartList: Array<DataType>;
   setCartList: React.Dispatch<React.SetStateAction<any>>;
   getCartLength: () => number;
   increaseQuantityInCart: (id: string) => void;

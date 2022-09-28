@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Loading from "../../components/loading/Loading";
 import Product from "../../components/product/Product";
+import { DataType } from "../../types/Types";
 import { useAppContext } from "../../context/GameStoreContext";
 
 const Container = styled.div`
@@ -22,7 +23,7 @@ const Favorite = () => {
 
   return (
     <Container>
-      {favoritesList?.map((prod: any) => (
+      {favoritesList?.map((prod: DataType) => (
         <Product key={prod.id} data={prod} />
       ))}
     </Container>
