@@ -4,7 +4,7 @@ A prototype of an e-commerce site selling game products.
 
 This project was developed using **React, TypeScript, Node.js, Express** and **Apollo GraphQL**.
 
-![Overview](./%40readme-images/overview.gif)
+![Overview](https://raw.githubusercontent.com/ilhanozkan/game-store/master/%40readme-images/overview.gif)
 
 This project inspired from [@folab](https://www.figma.com/@folab)'s [Game Drill design](https://www.figma.com/community/file/1138582638202684580).
 
