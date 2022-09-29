@@ -9,9 +9,38 @@
 }
 
 html {
-  width    : 100vw;
-  height   : 100vh;
-  font-size: 16px;
+  width : 100vw;
+  height: 100vh;
+}
+
+@media screen and (max-width: 2560px) {
+  * {
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 1440px) {
+  * {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  * {
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  * {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  * {
+    font-size: 8px;
+  }
 }
 
 body {

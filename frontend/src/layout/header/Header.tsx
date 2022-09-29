@@ -8,17 +8,22 @@ import Search from "../../components/search/Search";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import CartBox from "../../components/cartBox/CartBox";
 import { DataType } from "../../types/Types";
+import { tablet } from "../../responsive";
 
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2.9375rem;
+
+  ${tablet({ flexDirection: "column", alignItems: "flex-start" })}
 `;
 
 const UserSection = styled.div`
   display: flex;
   align-items: center;
+
+  ${tablet({ marginTop: "1rem" })}
 `;
 
 const Profile = styled.div`

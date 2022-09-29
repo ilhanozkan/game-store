@@ -8,17 +8,17 @@ const sizes = {
   desktop: "2560px",
 };
 
-export const mobile = ({ styles }: any) => {
+export const mobile = (styles: any) => {
   return css`
-    @media (max-width: ${sizes.mobile}) {
+    @media screen and (max-width: ${sizes.mobile}) {
       ${styles}
     }
   `;
 };
 
-export const tablet = ({ styles }: any) => {
+export const tablet = (styles: any) => {
   return css`
-    @media (max-width: ${sizes.tablet}) {
+    @media screen and (max-width: ${sizes.tablet}) {
       ${styles}
     }
   `;

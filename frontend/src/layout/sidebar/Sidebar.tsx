@@ -131,7 +131,7 @@ const Sidebar = () => {
           </NavItem>
           <NavItem>
             <Link to="/products/headphones">
-              <ImHeadphones size={15} />
+              <ImHeadphones />
               <span>Game Headphones</span>
             </Link>
           </NavItem>
