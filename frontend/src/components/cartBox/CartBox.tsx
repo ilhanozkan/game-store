@@ -36,7 +36,7 @@ const CartBox = ({ active, setActive, totalPrice }: CartBoxType) => {
           X
         </button>
         {cartList.map((item: DataType) => (
-          <div key={item.id}>
+          <div key={item._id}>
             <span>{item.name} </span>
             <span>x {item.cartQuantity}</span>
           </div>

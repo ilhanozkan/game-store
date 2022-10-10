@@ -24,7 +24,7 @@ const Favorite = () => {
   return (
     <Container>
       {favoritesList?.map((prod: DataType) => (
-        <Product key={prod.id} data={prod} />
+        <Product key={prod._id} data={prod} />
       ))}
     </Container>
   );

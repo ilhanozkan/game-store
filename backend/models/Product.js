@@ -1,26 +1,13 @@
-const uuid = require("uuid").v4;
+const mongoose = require("mongoose");
 
-class Product {
-  constructor(
-    name,
-    category,
-    price,
-    stock,
-    stars,
-    img,
-    description,
-    spesifications
-  ) {
-    this.id = uuid();
-    this.name = name;
-    this.category = category;
-    this.price = price;
-    this.stock = stock;
-    this.stars = stars;
-    this.img = img;
-    this.description = description;
-    this.spesifications = spesifications;
-  }
-}
+const Schema = mongoose.Schema;
 
-module.exports = Product;
+const productSchema = new Schema({
+  name: { type: String, required: true },
+  category: { type: String, required: true },
+  price: { type: Number, required: true },
+  stock: { type: Number, required: true },
+  img: { type: String, required: false },
+});
+
+module.exports = mongoose.model("Product", productSchema);

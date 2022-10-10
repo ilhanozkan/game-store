@@ -171,7 +171,7 @@ const Product = (data: { data: DataType }) => {
       case "decrease":
         if (quantityInCart == 1) {
           setQuantityInCart(quantityInCart - 1);
-          setCartList(cartList.filter((cart: DataType) => cart.id != id));
+          setCartList(cartList.filter((cart: DataType) => cart._id != id));
           setIsActiveQuantityButtons(false);
           return;
         }
@@ -187,7 +187,7 @@ const Product = (data: { data: DataType }) => {
     favorite(id);
     setFavoritesList((prev) => {
       if (favorites.includes(id))
-        return favoritesList.filter((item) => item.id != id);
+        return favoritesList.filter((item) => item._id != id);
 
       return [...prev, prod];
     });
@@ -210,7 +210,7 @@ const Product = (data: { data: DataType }) => {
       <CardInfo>
         <Title>{name}</Title>
         <Link to={`/products/${category.toLowerCase().replaceAll(" ", "-")}`}>
-          <Category>{category}</Category>
+          <Category>{category.replaceAll("-", " ")}</Category>
         </Link>
         <Price>{formatCurrency(price)}</Price>
         {isActiveQuantityButtons ? (

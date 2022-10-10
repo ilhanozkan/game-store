@@ -48,7 +48,7 @@ export const GameStoreProvider = ({ children }: any) => {
   const increaseQuantityInCart = (id: string) => {
     setCartList((prev: any) => {
       return prev.map((item: DataType) => {
-        if (item?.id == id) {
+        if (item?._id == id) {
           return { ...item, cartQuantity: item.cartQuantity + 1 };
         }
         return item;
@@ -59,7 +59,7 @@ export const GameStoreProvider = ({ children }: any) => {
   const decreaseQuantityInCart = (id: string) => {
     setCartList((prev: any) => {
       return prev.map((item: DataType) => {
-        if (item?.id == id) {
+        if (item?._id == id) {
           return { ...item, cartQuantity: item.cartQuantity - 1 };
         }
         return item;

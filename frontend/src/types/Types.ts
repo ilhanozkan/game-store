@@ -1,7 +1,7 @@
 import { ApolloError } from "@apollo/client";
 
 export type DataType = {
-  id: string;
+  _id: string;
   name: string;
   category: string;
   price: number;

@@ -10,7 +10,7 @@ const typeDefs = gql`
   }
 
   type Product {
-    id: ID!
+    _id: ID!
     name: String!
     category: String!
     price: Float!
@@ -19,7 +19,7 @@ const typeDefs = gql`
   }
 
   type User {
-    id: ID!
+    _id: ID!
     favorites: [String]
   }
 `;
