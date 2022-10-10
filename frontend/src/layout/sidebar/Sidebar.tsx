@@ -87,7 +87,7 @@ const Sidebar = () => {
   return (
     <Container>
       <Link to="/">
-        <Logo widthh={12.3125} />
+        <Logo width={12.3125} />
       </Link>
       <Nav>
         <CatalogButton />

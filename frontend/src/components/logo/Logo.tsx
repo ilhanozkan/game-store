@@ -4,11 +4,11 @@ import styled from "styled-components";
 import LogoImg from "../../assets/logo.svg";
 
 const LogoEl = styled.img<{ width: number }>`
-  width: ${(props) => (props.width ? `${props.width}rem` : `${12.3125}rem`)};
+  width: ${({ width }) => `${width}rem`};
 `;
 
-const Logo = ({ widthh }: { widthh: number }) => {
-  return <LogoEl src={LogoImg} width={widthh} />;
+const Logo = ({ width }: { width: number }) => {
+  return <LogoEl src={LogoImg} width={width} />;
 };
 
 export default Logo;
