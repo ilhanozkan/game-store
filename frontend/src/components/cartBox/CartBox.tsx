@@ -27,7 +27,7 @@ const Container = styled.div`
 `;
 
 const CartBox = ({ active, setActive, totalPrice }: CartBoxType) => {
-  const { cartList } = useAppContext();
+  const { cartList, setCartList } = useAppContext();
 
   if (active)
     return (
@@ -42,6 +42,9 @@ const CartBox = ({ active, setActive, totalPrice }: CartBoxType) => {
           </div>
         ))}
         <p>Total Price: {totalPrice}</p>
+        <button type="button" onClick={() => setCartList([])}>
+          Clear Cart
+        </button>
       </Container>
     );
   return null;
