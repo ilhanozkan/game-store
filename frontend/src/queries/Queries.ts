@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 export const PRODUCTS_QUERY = gql`
   query getProducts {
     products {
-      id
+      _id
       name
       category
       stock
@@ -16,7 +16,7 @@ export const PRODUCTS_QUERY = gql`
 export const PRODUCTS_BY_CATEGORY_QUERY = gql`
   query getProductsByCategory($category: String!) {
     productsByCategory(category: $category) {
-      id
+      _id
       name
       category
       stock
@@ -37,7 +37,7 @@ export const USER_QUERY = gql`
 export const USER_FAVS_QUERY = gql`
   query getUserFavs {
     userFavs(id: "1") {
-      id
+      _id
       name
       category
       price

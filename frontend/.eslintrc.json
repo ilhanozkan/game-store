@@ -35,6 +35,7 @@
         "endOfLine": "auto"
       }
     ],
-    "eqeqeq": "off"
+    "eqeqeq": "off",
+    "no-underscore-dangle": "off"
   }
 }

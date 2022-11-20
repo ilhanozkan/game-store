@@ -29,7 +29,7 @@ const Copyright = styled.p`
 const Footer = () => {
   return (
     <Container>
-      <Logo widthh={8} />
+      <Logo width={8} />
       <Copyright>All rights reserved 2022 ®</Copyright>
       <SocialIcons />
     </Container>

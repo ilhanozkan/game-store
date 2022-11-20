@@ -27,7 +27,7 @@ const Container = styled.div`
 `;
 
 const CartBox = ({ active, setActive, totalPrice }: CartBoxType) => {
-  const { cartList } = useAppContext();
+  const { cartList, setCartList } = useAppContext();
 
   if (active)
     return (
@@ -36,12 +36,15 @@ const CartBox = ({ active, setActive, totalPrice }: CartBoxType) => {
           X
         </button>
         {cartList.map((item: DataType) => (
-          <div key={item.id}>
+          <div key={item._id}>
             <span>{item.name} </span>
             <span>x {item.cartQuantity}</span>
           </div>
         ))}
         <p>Total Price: {totalPrice}</p>
+        <button type="button" onClick={() => setCartList([])}>
+          Clear Cart
+        </button>
       </Container>
     );
   return null;

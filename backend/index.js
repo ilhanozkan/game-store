@@ -16,20 +16,19 @@ const resolvers = require("./resolvers");
 
 // Apollo GraphQL datasources
 const ProductsAPI = require("./datasources/productsApi");
+const UserAPI = require("./datasources/userApi");
 
 // Routes
 const UsersRoute = require("./routes/users/users");
-const { ProductsRoutes } = require("./routes/products/products.js");
-const UserAPI = require("./datasources/userApi");
+const ProductsRoute = require("./routes/products/products.js");
+
+// MongoDB
+const mongoose = require("mongoose");
 
 app.use(json());
 app.use(cors());
-app.use("/products", ProductsRoutes);
+app.use("/products", ProductsRoute);
 app.use("/users", UsersRoute);
-
-app.listen(process.env.PORT || "8000", (err) =>
-  console.log(`backend is running on port ${process.env.PORT || 8000}`)
-);
 
 const server = new ApolloServer({
   typeDefs,
@@ -39,10 +38,19 @@ const server = new ApolloServer({
   },
 });
 
-server.listen(process.env.APOLLO_PORT || 4000).then(() => {
-  console.log(`
-    🚀  Server is running!
-    🔉  Listening on port ${process.env.APOLLO_PORT || 4000}
-    📭  Query at http://localhost:${process.env.APOLLO_PORT || 4000}
-  `);
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    app.listen(process.env.PORT || "8000", (err) =>
+      console.log(`backend is running on port ${process.env.PORT || 8000}`)
+    );
+
+    server.listen(process.env.APOLLO_PORT || 4000).then(() => {
+      console.log(`
+        🚀  Server is running!
+        🔉  Listening on port ${process.env.APOLLO_PORT || 4000}
+        📭  Query at http://localhost:${process.env.APOLLO_PORT || 4000}
+      `);
+    });
+  })
+  .catch((e) => console.log(e));

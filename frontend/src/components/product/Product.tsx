@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { TiHeartFullOutline } from "react-icons/ti";
@@ -103,6 +103,19 @@ const CartButtons = styled.div`
   }
 `;
 
+const AddButton = styled.button`
+  display: flex;
+  gap: 0.635rem;
+  font-size: 0.9rem;
+  border: none;
+
+  &:hover {
+    button {
+      background-color: #618dff;
+    }
+  }
+`;
+
 const IncreaseButton = styled.button`
   background: none;
   width: 2.125rem;
@@ -131,15 +144,11 @@ const DecreaseButton = styled.button`
   }
 `;
 
-const AddButton = styled.button`
-  font-size: 0.9rem;
-  border: none;
-`;
-
 const Product = (data: { data: DataType }) => {
   // eslint-disable-next-line react/destructuring-assignment
   const prod = JSON.parse(JSON.stringify(data.data));
-  const { id, name, category, price, stock, img } = prod;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { _id, name, category, price, stock, img } = prod;
   const {
     setCartList,
     cartList,
@@ -153,12 +162,21 @@ const Product = (data: { data: DataType }) => {
   const [isActiveQuantityButtons, setIsActiveQuantityButtons] = useState(false);
   const [quantityInCart, setQuantityInCart] = useState(0);
 
-  const addToCart = (e: any) => {
-    switch (e.target.name) {
+  useEffect(() => {
+    if (!cartList.length) {
+      setQuantityInCart(0);
+      setIsActiveQuantityButtons(false);
+    }
+  }, [cartList]);
+
+  const addToCart = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const target = e.target as HTMLTextAreaElement;
+
+    switch (target.name) {
       case "init":
         setIsActiveQuantityButtons(true);
 
-        increaseQuantityInCart(id);
+        increaseQuantityInCart(_id);
         setQuantityInCart(1);
         prod.cartQuantity = 1;
 
@@ -166,17 +184,17 @@ const Product = (data: { data: DataType }) => {
         break;
       case "increase":
         setQuantityInCart(quantityInCart + 1);
-        increaseQuantityInCart(id);
+        increaseQuantityInCart(_id);
         break;
       case "decrease":
         if (quantityInCart == 1) {
           setQuantityInCart(quantityInCart - 1);
-          setCartList(cartList.filter((cart: DataType) => cart.id != id));
+          setCartList(cartList.filter((cart: DataType) => cart._id != _id));
           setIsActiveQuantityButtons(false);
           return;
         }
         setQuantityInCart(quantityInCart - 1);
-        decreaseQuantityInCart(id);
+        decreaseQuantityInCart(_id);
         break;
       default:
         break;
@@ -184,10 +202,10 @@ const Product = (data: { data: DataType }) => {
   };
 
   const handleFavorite = () => {
-    favorite(id);
+    favorite(_id);
     setFavoritesList((prev) => {
-      if (favorites.includes(id))
-        return favoritesList.filter((item) => item.id != id);
+      if (favorites.includes(_id))
+        return favoritesList.filter((item) => item._id != _id);
 
       return [...prev, prod];
     });
@@ -198,7 +216,7 @@ const Product = (data: { data: DataType }) => {
   return (
     <Container>
       <FavoriteButton onClick={handleFavorite}>
-        {favorites.includes(id) ? (
+        {favorites.includes(_id) ? (
           <TiHeartFullOutline size="1.75rem" fill="#ff2f6c" />
         ) : (
           <TiHeartFullOutline size="1.75rem" fill="#cfdcff" opacity={0.4} />
@@ -210,7 +228,7 @@ const Product = (data: { data: DataType }) => {
       <CardInfo>
         <Title>{name}</Title>
         <Link to={`/products/${category.toLowerCase().replaceAll(" ", "-")}`}>
-          <Category>{category}</Category>
+          <Category>{category.replaceAll("-", " ")}</Category>
         </Link>
         <Price>{formatCurrency(price)}</Price>
         {isActiveQuantityButtons ? (
@@ -225,10 +243,10 @@ const Product = (data: { data: DataType }) => {
           </CartButtons>
         ) : (
           <CartButtons>
-            <IncreaseButton type="button" name="init" onClick={addToCart}>
-              +
-            </IncreaseButton>
             <AddButton type="button" name="init" onClick={addToCart}>
+              <IncreaseButton type="button" name="init">
+                +
+              </IncreaseButton>
               Add to Cart
             </AddButton>
           </CartButtons>

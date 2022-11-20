@@ -1,57 +1,35 @@
 const express = require("express");
+
+const ProductService = require("../../services/productService");
+
 const router = express.Router();
 
-let dummyData = require("../../datasources/dummyData.json");
-const Product = require("../../models/Product");
+router.get("/", async (req, res) => {
+  const products = await ProductService.load();
 
-router.get("/", (req, res) => {
-  res.json(dummyData);
+  res.json(products);
 });
 
-router.get("/:id", (req, res) => {
-  const id = req.params.id;
+router.get("/_id/:_id", async (req, res) => {
+  const id = req.params._id;
 
-  res.json(dummyData.find((product) => product.id === id));
+  res.json(await ProductService.findById(id));
 });
 
-router.get("/category/:category", (req, res) => {
-  const category = req.params.category;
+router.get("/category/:category", async (req, res) => {
+  const { category } = req.params;
 
-  res.json(
-    dummyData.filter((product) => {
-      return (
-        product.category.toLocaleLowerCase().replaceAll(" ", "-") == category
-      );
-    })
-  );
+  const catProducts = await ProductService.find({
+    category: { $regex: category, $options: "i" },
+  });
+
+  res.json(catProducts);
 });
 
-router.post("/new", (req, res) => {
-  const {
-    name,
-    category,
-    price,
-    stock,
-    img,
-    description,
-    spesifications,
-    stars,
-  } = req.body;
+router.post("/", async (req, res) => {
+  const product = await ProductService.insert(req.body);
 
-  const newProd = new Product(
-    name,
-    category,
-    price,
-    stock,
-    stars,
-    img,
-    description,
-    spesifications
-  );
-
-  dummyData = dummyData.concat(newProd);
-
-  res.status(201).json({ message: "Product created" });
+  res.status(201).json(product);
 });
 
-module.exports = { ProductsRoutes: router, dummyData };
+module.exports = router;

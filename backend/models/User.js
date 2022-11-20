@@ -1,14 +1,14 @@
-const uuid = require("uuid").v4;
+const mongoose = require("mongoose");
 
-class User {
-  constructor() {
-    this.id = "1" || uuid();
-    this.favorites = [];
-  }
+const Schema = mongoose.Schema;
 
-  updateFavorites(favorites) {
-    this.favorites = favorites;
-  }
-}
+const userSchema = new Schema({
+  name: { type: String, required: true },
+  username: { type: String, required: true },
+  password: { type: String, required: true },
+  email: { type: String, required: true },
+  img: { type: String, required: false },
+  favorites: { type: Array, reqired: false, default: [] },
+});
 
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);

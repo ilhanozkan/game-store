@@ -77,7 +77,7 @@ const Products = () => {
         </CategoryTitle>
         <Container>
           {productsByCategory?.productsByCategory?.map((prod: DataType) => (
-            <Product key={prod.id} data={prod} />
+            <Product key={prod._id} data={prod} />
           ))}
         </Container>
       </>
@@ -90,10 +90,10 @@ const Products = () => {
         ? fuse
             .search(searchParams.get("sr") || "")
             .map((prod: Fuse.FuseResult<DataType>) => (
-              <Product key={prod.item.id} data={prod.item} />
+              <Product key={prod.item._id} data={prod.item} />
             ))
         : data?.products?.map((prod: DataType) => (
-            <Product key={prod.id} data={prod} />
+            <Product key={prod._id} data={prod} />
           ))}
     </Container>
   );
