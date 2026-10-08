@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
+import { ToastProvider } from "../components/toast/ToastContext";
 import { Product, User } from "../types/Types";
 
 export const makeProduct = (overrides: Partial<Product> = {}): Product => ({
@@ -64,13 +65,15 @@ export const renderWithProviders = (
       <MemoryRouter initialEntries={[route]}>
         <AuthProvider>
           <CartProvider>
-            <Routes>
-              <Route path={path} element={ui} />
-              {path !== "*" && (
-                <Route path="*" element={<div>Another page</div>} />
-              )}
-            </Routes>
-            <LocationDisplay />
+            <ToastProvider>
+              <Routes>
+                <Route path={path} element={ui} />
+                {path !== "*" && (
+                  <Route path="*" element={<div>Another page</div>} />
+                )}
+              </Routes>
+              <LocationDisplay />
+            </ToastProvider>
           </CartProvider>
         </AuthProvider>
       </MemoryRouter>

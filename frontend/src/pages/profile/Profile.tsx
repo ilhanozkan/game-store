@@ -12,6 +12,8 @@ import { OrdersData } from "../../types/Types";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import formatDate from "../../utils/formatDate";
 import { getErrorMessage } from "../../utils/apolloErrors";
+import usePageTitle from "../../hooks/usePageTitle";
+import { useToast } from "../../components/toast/ToastContext";
 import { colors, radii } from "../../styles/theme";
 import Avatar from "../../components/avatar/Avatar";
 import Loading from "../../components/loading/Loading";
@@ -263,7 +265,9 @@ const OrderHistory = () => {
 };
 
 const Profile = () => {
+  usePageTitle("Profile");
   const { user, logout } = useAuth();
+  const showToast = useToast();
   const { clearCart } = useCart();
   const navigate = useNavigate();
   const { data } = useQuery<OrdersData>(MY_ORDERS_QUERY);
@@ -274,6 +278,7 @@ const Profile = () => {
     logout();
     clearCart();
     navigate("/");
+    showToast({ message: "You've signed out. See you soon!", tone: "info" });
   };
 
   return (

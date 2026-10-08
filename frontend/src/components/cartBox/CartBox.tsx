@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { IoClose } from "react-icons/io5";
 import { BsBag } from "react-icons/bs";
 
 import { maxQuantityFor, useCart } from "../../context/CartContext";
+import useDialog from "../../hooks/useDialog";
 import useCartSync from "../../hooks/useCartSync";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import { colors, radii } from "../../styles/theme";
@@ -12,15 +13,33 @@ import { Button, ButtonLink } from "../ui/Button";
 import { Alert } from "../ui/Form";
 import QuantityStepper from "../quantityStepper/QuantityStepper";
 
-const Container = styled.aside`
+// id of the header button that opens the cart.
+export const CART_BUTTON_ID = "cart-button";
+
+const Backdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, 0.6);
+  animation: cart-fade 200ms ease-out;
+
+  @keyframes cart-fade {
+    from {
+      opacity: 0;
+    }
+  }
+`;
+
+const Container = styled.div`
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 20;
+  z-index: 46;
   display: flex;
   flex-direction: column;
   width: min(24rem, 100vw);
   height: 100vh;
+  height: 100dvh;
   background-color: ${colors.background};
   box-shadow: -1rem 0 2rem rgba(0, 0, 0, 0.4);
   animation: cart-slide 300ms ease-out;
@@ -154,6 +173,35 @@ const Empty = styled.div`
   }
 `;
 
+const Panel = ({
+  onClose,
+  children,
+}: {
+  onClose: () => void;
+  children: React.ReactNode;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useDialog(ref, true, onClose, {
+    // If the opener is gone (e.g. a toast's "View cart"), return to the bag.
+    returnFocusTo: () => document.getElementById(CART_BUTTON_ID),
+  });
+
+  return (
+    <>
+      <Backdrop onClick={onClose} aria-hidden />
+      <Container
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cart-title"
+        tabIndex={-1}
+      >
+        {children}
+      </Container>
+    </>
+  );
+};
+
 const CartBox = () => {
   const {
     items,
@@ -169,9 +217,11 @@ const CartBox = () => {
   if (!isOpen) return null;
 
   return (
-    <Container aria-label="Shopping cart">
+    <Panel onClose={closeCart}>
       <Header>
-        <Title>Your cart {itemCount > 0 && `(${itemCount})`}</Title>
+        <Title id="cart-title">
+          Your cart {itemCount > 0 && `(${itemCount})`}
+        </Title>
         <CloseButton type="button" onClick={closeCart} aria-label="Close cart">
           <IoClose aria-hidden />
         </CloseButton>
@@ -230,7 +280,7 @@ const CartBox = () => {
           </Footer>
         </>
       )}
-    </Container>
+    </Panel>
   );
 };
 
