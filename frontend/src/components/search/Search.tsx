@@ -1,51 +1,87 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { MdOutlineSearch } from "react-icons/md";
 
-import { useAppContext } from "../../context/GameStoreContext";
+import { colors } from "../../styles/theme";
+
+export const SEARCH_PARAM = "sr";
+
+const SearchForm = styled.form`
+  position: relative;
+  width: min(25.671875rem, 100%);
+`;
+
+const SearchIcon = styled(MdOutlineSearch)`
+  position: absolute;
+  top: 50%;
+  left: 0.875rem;
+  transform: translateY(-50%);
+  color: ${colors.textMuted};
+  font-size: 1.25rem;
+  pointer-events: none;
+`;
 
 const SearchInput = styled.input`
-  width: 25.671875rem;
-  height: 0;
-  padding: 1.25rem 0.75rem;
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.75rem;
   border-radius: 6px;
-  border: 0.1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(168, 168, 168, 0.17);
   color: #fff;
+  font-size: 1rem;
+
+  &::placeholder {
+    color: ${colors.textMuted};
+  }
+
+  &:focus {
+    outline: none;
+    border-color: ${colors.primary};
+  }
 `;
 
 const Search = () => {
-  const { setSearchParams } = useAppContext();
-  const [inputValue, setInputValue] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const onSearchPage = location.pathname === "/search";
+  const [inputValue, setInputValue] = useState(
+    onSearchPage ? searchParams.get(SEARCH_PARAM) || "" : ""
+  );
 
+  // Clear the box when leaving the search page.
   useEffect(() => {
-    setInputValue("");
-  }, [location.pathname]);
+    if (!onSearchPage) setInputValue("");
+  }, [onSearchPage]);
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    navigate(`/search?sr=${inputValue}`);
+    navigate(
+      `/search?${SEARCH_PARAM}=${encodeURIComponent(inputValue.trim())}`
+    );
   };
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
 
-    if (location.pathname.toString() == "/search")
-      setSearchParams({ sr: e.target.value });
+    // Update results live while already on the search page.
+    if (onSearchPage) {
+      setSearchParams({ [SEARCH_PARAM]: e.target.value }, { replace: true });
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <SearchForm role="search" onSubmit={handleSubmit}>
+      <SearchIcon aria-hidden />
       <SearchInput
         type="search"
         value={inputValue}
-        placeholder="🔍 Search"
+        placeholder="Search products"
+        aria-label="Search products"
         onChange={handleInputChange}
       />
-    </form>
+    </SearchForm>
   );
 };
 
