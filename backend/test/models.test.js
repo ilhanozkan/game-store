@@ -3,13 +3,7 @@ const assert = require("node:assert/strict");
 const mongoose = require("mongoose");
 
 const { useTestDatabase } = require("./helpers/db");
-const {
-  Category,
-  Product,
-  User,
-  Order,
-  Transaction,
-} = require("../models");
+const { Category, Product, User, Order, Transaction } = require("../models");
 
 useTestDatabase();
 

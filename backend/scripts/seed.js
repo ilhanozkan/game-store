@@ -17,9 +17,9 @@ const run = async () => {
   await connectDatabase();
   const summary = await seedDatabase({ reset });
 
+  const note = reset ? " (after reset)" : "";
   console.log(
-    `Seeded ${summary.categories} categories, ${summary.products} products ` +
-      `and created ${summary.usersCreated} users${reset ? " (after reset)" : ""}.`
+    `Seeded ${summary.categories} categories and ${summary.products} products, created ${summary.usersCreated} users${note}.`
   );
 };
 

@@ -5,13 +5,7 @@ const path = require("node:path");
 
 const { useTestDatabase } = require("./helpers/db");
 const { seedDatabase } = require("../db/seed");
-const {
-  Category,
-  Product,
-  User,
-  Order,
-  Transaction,
-} = require("../models");
+const { Category, Product, User, Order, Transaction } = require("../models");
 const categories = require("../data/categories.json");
 const products = require("../data/products.json");
 const users = require("../data/users.json");
@@ -91,9 +85,7 @@ describe("seedDatabase", () => {
 
   it("resolves favorite slugs and records a welcome credit", async () => {
     await seedDatabase();
-    const fola = await User.findOne({ username: "fola" }).populate(
-      "favorites"
-    );
+    const fola = await User.findOne({ username: "fola" }).populate("favorites");
     const expected = users.find((u) => u.username === "fola");
 
     assert.deepEqual(

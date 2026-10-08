@@ -1,10 +1,4 @@
-const {
-  Category,
-  Product,
-  User,
-  Order,
-  Transaction,
-} = require("../models");
+const { Category, Product, User, Order, Transaction } = require("../models");
 const categories = require("../data/categories.json");
 const products = require("../data/products.json");
 const users = require("../data/users.json");
