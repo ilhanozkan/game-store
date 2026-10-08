@@ -12,6 +12,8 @@ const SORTS = {
   NAME: { name: 1, _id: 1 },
 };
 
+const MAX_SEARCH_LENGTH = 100;
+
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
@@ -21,9 +23,11 @@ const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const listProducts = async ({
   category,
   search,
-  sort = "FEATURED",
+  sort: requestedSort,
   inStockOnly = false,
 } = {}) => {
+  // GraphQL passes null for an explicit `sort: null`.
+  const sort = requestedSort ?? "FEATURED";
   if (!SORTS[sort]) {
     throw new ValidationError(
       `Unknown sort "${sort}". Use one of: ${Object.keys(SORTS).join(", ")}`
@@ -39,6 +43,11 @@ const listProducts = async ({
   }
 
   const term = typeof search === "string" ? search.trim() : "";
+  if (term.length > MAX_SEARCH_LENGTH) {
+    throw new ValidationError(
+      `Search terms are limited to ${MAX_SEARCH_LENGTH} characters`
+    );
+  }
   if (term) {
     const pattern = new RegExp(escapeRegex(term), "i");
     filter.$or = [

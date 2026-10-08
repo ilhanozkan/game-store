@@ -49,14 +49,15 @@ JWT_EXPIRES_IN=7d
 CORS_ORIGIN=http://localhost:3000
 ```
 
-| Variable         | Default                       | Description                                                                                      |
-| ---------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| `MONGO_URI`      | _in-memory database_          | MongoDB connection string. Required unless `NODE_ENV` is unset, `development` or `test`.         |
-| `PORT`           | `5000`                        | Port for both the GraphQL (`/graphql`) and REST (`/api`) endpoints.                              |
-| `JWT_SECRET`     | _random, per process_         | Secret used to sign login tokens (at least 32 characters). Required whenever `MONGO_URI` is set. |
-| `JWT_EXPIRES_IN` | `7d`                          | How long login tokens stay valid.                                                                |
-| `CORS_ORIGIN`    | `*`                           | Comma-separated origins allowed to call the API.                                                 |
-| `DEMO_WALLET`    | `true`, `false` in production | Allows free store-credit top-ups through `topUpBalance`.                                         |
+| Variable         | Default                       | Description                                                                                                  |
+| ---------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `MONGO_URI`      | _in-memory database_          | MongoDB connection string. Required unless `NODE_ENV` is unset, `development` or `test`.                     |
+| `PORT`           | `5000`                        | Port for both the GraphQL (`/graphql`) and REST (`/api`) endpoints.                                          |
+| `JWT_SECRET`     | _random, per process_         | Secret used to sign login tokens (at least 32 characters). Required whenever `MONGO_URI` is set.             |
+| `JWT_EXPIRES_IN` | `7d`                          | How long login tokens stay valid.                                                                            |
+| `CORS_ORIGIN`    | `*`                           | Comma-separated origins allowed to call the API.                                                             |
+| `DEMO_WALLET`    | `true`, `false` in production | Allows free store-credit top-ups through `topUpBalance`.                                                     |
+| `TRUST_PROXY`    | _off_                         | Express `trust proxy` setting (e.g. `1`) when running behind a load balancer, so rate limits see client IPs. |
 
 2 - Install dependencies
 
@@ -224,7 +225,9 @@ The backend serves GraphQL and a small read-mostly REST API from the same port. 
 | `checkout(items)`                               | user     | Pays for the cart from the balance, reserving stock atomically. |
 | `createProduct(input)`                          | admin    | Adds a product to the catalog.                                  |
 
-Errors carry an `extensions.code`: `BAD_USER_INPUT`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `INSUFFICIENT_BALANCE` or `INTERNAL_SERVER_ERROR`.
+Errors carry an `extensions.code`: `BAD_USER_INPUT`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `INSUFFICIENT_BALANCE`, `TOO_MANY_REQUESTS` or `INTERNAL_SERVER_ERROR`, plus Apollo's own `GRAPHQL_PARSE_FAILED` and `GRAPHQL_VALIDATION_FAILED` for malformed operations.
+
+Failed sign-ins are limited to 10 per client every 15 minutes and registrations to 10 per hour. Checkout reserves stock and charges the balance with conditional atomic updates and undoes them if a later step fails; it works on a standalone MongoDB, but a process crash mid-checkout can leave reserved stock behind (a replica set with transactions would close that gap).
 
 ### REST (`/api`)
 
@@ -237,7 +240,7 @@ Errors carry an `extensions.code`: `BAD_USER_INPUT`, `UNAUTHENTICATED`, `FORBIDD
 | `GET /api/products/:idOrSlug`      | –     | A single product, or `404`.                                                    |
 | `POST /api/products`               | admin | Creates a product.                                                             |
 
-REST errors are returned as `{ "error": { "message", "code" } }` with a matching HTTP status.
+REST errors are returned as `{ "error": { "message", "code" } }` with a matching HTTP status. Note that REST returns raw documents, so a product's `category` is its slug (e.g. `vr-glasses`), while GraphQL resolves `category` to the display name and exposes the slug as `categorySlug`.
 
 ## License
 

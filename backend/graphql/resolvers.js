@@ -8,14 +8,33 @@ const orderService = require("../services/orderService");
 
 const { requireUser, requireAdmin } = authService;
 
+const toDate = (value) => {
+  const date = new Date(value);
+  if (typeof value !== "string" || Number.isNaN(date.getTime())) {
+    throw new TypeError("DateTime must be an ISO-8601 string");
+  }
+  return date;
+};
+
 const DateTime = new GraphQLScalarType({
   name: "DateTime",
   description: "ISO-8601 date and time",
   serialize: (value) => new Date(value).toISOString(),
-  parseValue: (value) => new Date(value),
-  parseLiteral: (ast) =>
-    ast.kind === Kind.STRING ? new Date(ast.value) : null,
+  parseValue: toDate,
+  parseLiteral: (ast) => {
+    if (ast.kind !== Kind.STRING) {
+      throw new TypeError("DateTime must be an ISO-8601 string");
+    }
+    return toDate(ast.value);
+  },
 });
+
+// Mutations that change the signed-in user also refresh it on the context,
+// so fields resolved afterwards (e.g. Product.isFavorite) see the new state.
+const withFreshUser = (context, updated) => {
+  context.user = updated;
+  return updated;
+};
 
 const sameId = (a) => (b) => String(a) === String(b);
 
@@ -24,6 +43,7 @@ const resolvers = {
 
   Role: { CUSTOMER: "customer", ADMIN: "admin" },
   TransactionType: { TOP_UP: "top-up", PURCHASE: "purchase" },
+  OrderStatus: { PAID: "paid", CANCELLED: "cancelled" },
 
   Query: {
     products: (_, args) => productService.listProducts(args),
@@ -39,16 +59,33 @@ const resolvers = {
   },
 
   Mutation: {
-    register: (_, { input }) => authService.register(input),
-    login: (_, { input }) => authService.login(input),
-    updateProfile: (_, { input }, { user }) =>
-      userService.updateProfile(requireUser(user), input),
-    toggleFavorite: (_, { productId }, { user }) =>
-      userService.toggleFavorite(requireUser(user), productId),
+    register: async (_, { input }, context) => {
+      const payload = await authService.register(input, context);
+      withFreshUser(context, payload.user);
+      return payload;
+    },
+    login: async (_, { input }, context) => {
+      const payload = await authService.login(input, context);
+      withFreshUser(context, payload.user);
+      return payload;
+    },
+    updateProfile: async (_, { input }, context) =>
+      withFreshUser(
+        context,
+        await userService.updateProfile(requireUser(context.user), input)
+      ),
+    toggleFavorite: async (_, { productId }, context) =>
+      withFreshUser(
+        context,
+        await userService.toggleFavorite(requireUser(context.user), productId)
+      ),
     checkout: (_, { items }, { user }) =>
       orderService.checkout(requireUser(user), items),
-    topUpBalance: (_, { amount }, { user }) =>
-      userService.topUpBalance(requireUser(user), amount),
+    topUpBalance: async (_, { amount }, context) =>
+      withFreshUser(
+        context,
+        await userService.topUpBalance(requireUser(context.user), amount)
+      ),
     createProduct: (_, { input }, { user }) => {
       requireAdmin(user);
       return productService.createProduct(input);

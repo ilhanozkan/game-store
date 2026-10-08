@@ -26,7 +26,7 @@ const useTestApp = () => {
   });
 
   const graphql = async (query, variables = {}, token) => {
-    const req = request(state.app)
+    const req = request(state.httpServer)
       .post("/graphql")
       .set("Content-Type", "application/json");
     if (token) req.set("Authorization", `Bearer ${token}`);
@@ -49,7 +49,7 @@ const useTestApp = () => {
   };
 
   return {
-    request: () => request(state.app),
+    request: () => request(state.httpServer),
     graphql,
     login,
     loginAsCustomer: () => login("fola", "gamestore123"),

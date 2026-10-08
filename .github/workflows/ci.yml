@@ -9,9 +9,14 @@ jobs:
   backend:
     name: Backend tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: backend
+    env:
+      # mongodb-memory-server downloads its MongoDB binary here, so it can be
+      # cached between runs instead of fetched every time.
+      MONGOMS_DOWNLOAD_DIR: ${{ github.workspace }}/.mongodb-binaries
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,7 +27,7 @@ jobs:
       - name: Cache MongoDB binaries
         uses: actions/cache@v4
         with:
-          path: ~/.cache/mongodb-binaries
+          path: .mongodb-binaries
           key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
       - run: npm ci
       - run: npm test

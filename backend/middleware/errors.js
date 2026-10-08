@@ -5,12 +5,17 @@ const notFound = (req, _res, next) => {
 };
 
 // Express recognises error handlers by their four arguments, so keep _next.
-const errorHandler = (error, _req, res, _next) => {
-  // Malformed JSON bodies and oversized payloads come from body-parser.
-  if (error.type === "entity.parse.failed" || error.status === 413) {
-    res.status(error.status || 400).json({
-      error: { message: error.message, code: "BAD_REQUEST" },
-    });
+const errorHandler = (error, req, res, _next) => {
+  // Client errors raised before routing by body-parser: malformed JSON,
+  // unsupported charset or encoding, oversized payloads, ...
+  if (error.expose && error.status >= 400 && error.status < 500) {
+    const { message } = error;
+    const code = "BAD_REQUEST";
+    // GraphQL clients expect GraphQL-shaped errors.
+    const body = req.originalUrl.startsWith("/graphql")
+      ? { errors: [{ message, extensions: { code } }] }
+      : { error: { message, code } };
+    res.status(error.status).json(body);
     return;
   }
 

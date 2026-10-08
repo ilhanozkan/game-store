@@ -1,5 +1,10 @@
+const config = require("../config");
 const { User, Product, Transaction } = require("../models");
-const { NotFoundError, ValidationError } = require("../utils/errors");
+const {
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} = require("../utils/errors");
 const { getProduct } = require("./productService");
 
 // Upper bound for a single wallet top-up, in Naira.
@@ -17,14 +22,14 @@ const toggleFavorite = async (user, productId) => {
   const added = await User.findOneAndUpdate(
     { _id: user._id, favorites: { $ne: product._id } },
     { $push: { favorites: product._id } },
-    { new: true }
+    { returnDocument: "after" }
   );
   if (added) return added;
 
   return User.findByIdAndUpdate(
     user._id,
     { $pull: { favorites: product._id } },
-    { new: true }
+    { returnDocument: "after" }
   );
 };
 
@@ -48,12 +53,15 @@ const updateProfile = async (user, { name, email, img }) => {
   if (img !== undefined && img !== null) update.img = img;
 
   return User.findByIdAndUpdate(user._id, update, {
-    new: true,
+    returnDocument: "after",
     runValidators: true,
   });
 };
 
 const topUpBalance = async (user, amount) => {
+  if (!config.demoWallet) {
+    throw new ForbiddenError("Top-ups are disabled on this store");
+  }
   if (!Number.isInteger(amount) || amount <= 0 || amount > MAX_TOP_UP) {
     throw new ValidationError(
       `Top-ups must be a whole amount between ₦1 and ₦${MAX_TOP_UP.toLocaleString(
@@ -65,16 +73,22 @@ const topUpBalance = async (user, amount) => {
   const updated = await User.findByIdAndUpdate(
     user._id,
     { $inc: { balance: amount } },
-    { new: true }
+    { returnDocument: "after" }
   );
 
-  await Transaction.create({
-    user: user._id,
-    type: "top-up",
-    amount,
-    balanceAfter: updated.balance,
-    description: "Wallet top-up",
-  });
+  try {
+    await Transaction.create({
+      user: user._id,
+      type: "top-up",
+      amount,
+      balanceAfter: updated.balance,
+      description: "Wallet top-up",
+    });
+  } catch (error) {
+    // Keep the balance and the ledger in agreement.
+    await User.updateOne({ _id: user._id }, { $inc: { balance: -amount } });
+    throw error;
+  }
 
   return updated;
 };
