@@ -1,0 +1,210 @@
+[
+  {
+    "name": "Oculus Quest 2",
+    "slug": "oculus-quest-2",
+    "brand": "Meta",
+    "category": "vr-glasses",
+    "price": 449000,
+    "stock": 10,
+    "img": "/images/products/oculus-quest-vr-glasses.png",
+    "description": "An all-in-one VR headset with no PC or cables required. Play, explore and work out in fully immersive virtual worlds with intuitive hand tracking and Touch controllers.",
+    "rating": 4.7,
+    "reviewCount": 312,
+    "specs": [
+      { "label": "Storage", "value": "128 GB" },
+      { "label": "Display", "value": "1832 × 1920 per eye" },
+      { "label": "Refresh rate", "value": "Up to 120 Hz" },
+      { "label": "Tracking", "value": "6DoF inside-out" }
+    ]
+  },
+  {
+    "name": "Rapoo V52S",
+    "slug": "rapoo-v52s",
+    "brand": "Rapoo",
+    "category": "keyboards",
+    "price": 29500,
+    "stock": 25,
+    "img": "/images/products/rgb-keyboard.png",
+    "description": "A full-size backlit gaming keyboard with a spill-resistant design and anti-ghosting keys, so every input registers during intense matches.",
+    "rating": 4.3,
+    "reviewCount": 128,
+    "specs": [
+      { "label": "Layout", "value": "Full size (104 keys)" },
+      { "label": "Backlight", "value": "Rainbow LED" },
+      { "label": "Connection", "value": "USB wired" }
+    ]
+  },
+  {
+    "name": "JBL Quantum One",
+    "slug": "jbl-quantum-one",
+    "brand": "JBL",
+    "category": "headphones",
+    "price": 215000,
+    "stock": 8,
+    "img": "/images/products/jbl-one.png",
+    "description": "Over-ear gaming headset with 50 mm drivers, active noise cancelling and a detachable boom mic. JBL QuantumSPHERE 360 delivers precise positional audio.",
+    "rating": 4.6,
+    "reviewCount": 204,
+    "specs": [
+      { "label": "Drivers", "value": "50 mm dynamic" },
+      { "label": "Noise cancelling", "value": "Active (ANC)" },
+      { "label": "Microphone", "value": "Detachable boom mic" },
+      { "label": "Connection", "value": "USB and 3.5 mm" }
+    ]
+  },
+  {
+    "name": "GameMax S-RGB",
+    "slug": "gamemax-s-rgb",
+    "brand": "GameMax",
+    "category": "mouse",
+    "price": 14500,
+    "stock": 40,
+    "img": "/images/products/rgb-gaming-mouse.png",
+    "description": "A lightweight wired gaming mouse with adjustable DPI and customisable RGB lighting, built for comfortable long sessions.",
+    "rating": 4.1,
+    "reviewCount": 87,
+    "specs": [
+      { "label": "Sensor", "value": "Optical, up to 6400 DPI" },
+      { "label": "Buttons", "value": "7 programmable" },
+      { "label": "Lighting", "value": "RGB" }
+    ]
+  },
+  {
+    "name": "Defender X7",
+    "slug": "defender-x7",
+    "brand": "Defender",
+    "category": "gamepads",
+    "price": 18000,
+    "stock": 30,
+    "img": "/images/products/defender-x7.png",
+    "description": "A wired gamepad with dual vibration motors and an ergonomic grip. Plug-and-play on Windows and Android.",
+    "rating": 4.0,
+    "reviewCount": 64,
+    "specs": [
+      { "label": "Connection", "value": "USB wired" },
+      { "label": "Vibration", "value": "Dual motors" },
+      { "label": "Compatibility", "value": "Windows, Android" }
+    ]
+  },
+  {
+    "name": "Logitech G305",
+    "slug": "logitech-g305",
+    "brand": "Logitech",
+    "category": "mouse",
+    "price": 59000,
+    "stock": 18,
+    "img": "/images/products/logitech-g305.png",
+    "description": "LIGHTSPEED wireless gaming mouse with the HERO sensor. Up to 250 hours of play on a single AA battery at just 99 g.",
+    "rating": 4.8,
+    "reviewCount": 451,
+    "specs": [
+      { "label": "Sensor", "value": "HERO, up to 12,000 DPI" },
+      { "label": "Connection", "value": "LIGHTSPEED wireless" },
+      { "label": "Battery life", "value": "Up to 250 hours" },
+      { "label": "Weight", "value": "99 g" }
+    ]
+  },
+  {
+    "name": "PC Builder Tower",
+    "slug": "pc-builder-tower",
+    "brand": "PC Builder",
+    "category": "computer",
+    "price": 1750000,
+    "stock": 2,
+    "img": "/images/products/pc-builder.png",
+    "description": "A ready-to-play gaming desktop in a tempered glass tower with RGB airflow. Built and tested for 1440p gaming.",
+    "rating": 4.5,
+    "reviewCount": 23,
+    "specs": [
+      { "label": "Processor", "value": "8-core desktop CPU" },
+      { "label": "Graphics", "value": "12 GB gaming GPU" },
+      { "label": "Memory", "value": "32 GB DDR5" },
+      { "label": "Storage", "value": "1 TB NVMe SSD" }
+    ]
+  },
+  {
+    "name": "Defender XB",
+    "slug": "defender-xb",
+    "brand": "Defender",
+    "category": "gamepads",
+    "price": 21500,
+    "stock": 0,
+    "img": "/images/products/defender-xb.png",
+    "description": "A wireless gamepad with a familiar console layout, responsive triggers and a rechargeable battery.",
+    "rating": 4.2,
+    "reviewCount": 41,
+    "specs": [
+      { "label": "Connection", "value": "2.4 GHz wireless" },
+      { "label": "Battery", "value": "Rechargeable" },
+      { "label": "Compatibility", "value": "Windows, Android" }
+    ]
+  },
+  {
+    "name": "Neon Drift",
+    "slug": "neon-drift",
+    "brand": "Game Drill Originals",
+    "category": "games",
+    "price": 45000,
+    "stock": 999,
+    "img": "/images/products/neon-drift.svg",
+    "description": "Arcade racing through a synthwave city at midnight. Chain drifts, dodge traffic and climb the online leaderboards.",
+    "rating": 4.4,
+    "reviewCount": 96,
+    "specs": [
+      { "label": "Genre", "value": "Racing" },
+      { "label": "Players", "value": "1–8 online" },
+      { "label": "Delivery", "value": "Digital key" }
+    ]
+  },
+  {
+    "name": "Starfall Tactics",
+    "slug": "starfall-tactics",
+    "brand": "Game Drill Originals",
+    "category": "games",
+    "price": 38000,
+    "stock": 999,
+    "img": "/images/products/starfall-tactics.svg",
+    "description": "Turn-based strategy across a shattered star system. Command your fleet, research new tech and outwit rival admirals.",
+    "rating": 4.6,
+    "reviewCount": 133,
+    "specs": [
+      { "label": "Genre", "value": "Strategy" },
+      { "label": "Players", "value": "1–4" },
+      { "label": "Delivery", "value": "Digital key" }
+    ]
+  },
+  {
+    "name": "Hollow Keep",
+    "slug": "hollow-keep",
+    "brand": "Game Drill Originals",
+    "category": "games",
+    "price": 52000,
+    "stock": 999,
+    "img": "/images/products/hollow-keep.svg",
+    "description": "A dark fantasy action RPG. Explore a cursed fortress, master weapon styles and uncover what sleeps beneath the keep.",
+    "rating": 4.7,
+    "reviewCount": 178,
+    "specs": [
+      { "label": "Genre", "value": "Action RPG" },
+      { "label": "Players", "value": "Single player" },
+      { "label": "Delivery", "value": "Digital key" }
+    ]
+  },
+  {
+    "name": "Pixel Raiders",
+    "slug": "pixel-raiders",
+    "brand": "Game Drill Originals",
+    "category": "games",
+    "price": 24000,
+    "stock": 999,
+    "img": "/images/products/pixel-raiders.svg",
+    "description": "Co-op pixel-art platformer for up to four friends. Raid procedurally generated dungeons and share the loot — or don't.",
+    "rating": 4.3,
+    "reviewCount": 72,
+    "specs": [
+      { "label": "Genre", "value": "Platformer" },
+      { "label": "Players", "value": "1–4 local or online" },
+      { "label": "Delivery", "value": "Digital key" }
+    ]
+  }
+]

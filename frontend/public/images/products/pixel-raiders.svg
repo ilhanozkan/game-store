@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="300" viewBox="0 0 240 300" shape-rendering="crispEdges" role="img" aria-label="Pixel Raiders cover art">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b9bf4"/>
+      <stop offset="1" stop-color="#8fd3ff"/>
+    </linearGradient>
+    <clipPath id="card"><rect width="240" height="300" rx="14"/></clipPath>
+  </defs>
+  <g clip-path="url(#card)">
+    <rect width="240" height="300" fill="url(#sky)"/>
+    <g fill="#fff">
+      <rect x="24" y="110" width="40" height="10"/><rect x="34" y="100" width="20" height="10"/>
+      <rect x="168" y="130" width="48" height="10"/><rect x="180" y="120" width="24" height="10"/>
+    </g>
+    <g fill="#6b3f1d">
+      <rect x="0" y="250" width="240" height="50"/>
+    </g>
+    <g fill="#4caf50">
+      <rect x="0" y="240" width="240" height="10"/>
+    </g>
+    <g fill="#8d5a2b">
+      <rect x="20" y="262" width="10" height="10"/><rect x="70" y="276" width="10" height="10"/>
+      <rect x="130" y="264" width="10" height="10"/><rect x="190" y="280" width="10" height="10"/>
+    </g>
+    <g>
+      <rect x="150" y="190" width="60" height="50" fill="#c77d2e"/>
+      <rect x="150" y="190" width="60" height="10" fill="#8d5a2b"/>
+      <rect x="174" y="200" width="12" height="12" fill="#ffd54f"/>
+      <rect x="150" y="214" width="60" height="4" fill="#8d5a2b"/>
+    </g>
+    <g fill="#ffd54f">
+      <rect x="120" y="176" width="8" height="8"/><rect x="200" y="166" width="8" height="8"/><rect x="164" y="168" width="8" height="8"/>
+    </g>
+    <g>
+      <rect x="44" y="196" width="24" height="20" fill="#e53935"/>
+      <rect x="48" y="180" width="16" height="16" fill="#ffcc80"/>
+      <rect x="44" y="176" width="24" height="8" fill="#e53935"/>
+      <rect x="56" y="186" width="4" height="4" fill="#1b1b1b"/>
+      <rect x="44" y="216" width="8" height="12" fill="#1e3a8a"/>
+      <rect x="60" y="216" width="8" height="12" fill="#1e3a8a"/>
+      <rect x="68" y="198" width="12" height="4" fill="#bdbdbd"/>
+    </g>
+    <g>
+      <rect x="92" y="208" width="20" height="18" fill="#618dff"/>
+      <rect x="95" y="194" width="14" height="14" fill="#a1887f"/>
+      <rect x="92" y="190" width="20" height="6" fill="#618dff"/>
+      <rect x="102" y="199" width="4" height="4" fill="#1b1b1b"/>
+      <rect x="92" y="226" width="7" height="14" fill="#263238"/>
+      <rect x="105" y="226" width="7" height="14" fill="#263238"/>
+    </g>
+    <rect x="44" y="228" width="24" height="12" fill="#263238"/>
+    <text x="120" y="52" text-anchor="middle" font-family="'Courier New', monospace" font-size="34" font-weight="700" fill="#1b1b1b" letter-spacing="2">PIXEL</text>
+    <text x="118" y="50" text-anchor="middle" font-family="'Courier New', monospace" font-size="34" font-weight="700" fill="#ffd54f" letter-spacing="2">PIXEL</text>
+    <text x="120" y="84" text-anchor="middle" font-family="'Courier New', monospace" font-size="26" font-weight="700" fill="#1b1b1b" letter-spacing="2">RAIDERS</text>
+    <text x="118" y="82" text-anchor="middle" font-family="'Courier New', monospace" font-size="26" font-weight="700" fill="#ffffff" letter-spacing="2">RAIDERS</text>
+  </g>
+</svg>
