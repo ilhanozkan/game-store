@@ -11,6 +11,7 @@ const products = require("../data/products.json");
 const users = require("../data/users.json");
 
 const FRONTEND_PUBLIC = path.join(__dirname, "..", "..", "frontend", "public");
+const hasFrontend = fs.existsSync(FRONTEND_PUBLIC);
 
 useTestDatabase();
 
@@ -27,12 +28,16 @@ describe("seed data", () => {
     assert.equal(new Set(slugs).size, slugs.length);
   });
 
-  it("points every product image at a file served by the frontend", () => {
-    products.forEach((product) => {
-      const file = path.join(FRONTEND_PUBLIC, product.img);
-      assert.ok(fs.existsSync(file), `${product.img} is missing`);
-    });
-  });
+  it(
+    "points every product image at a file served by the frontend",
+    { skip: !hasFrontend && "frontend/ is not checked out" },
+    () => {
+      products.forEach((product) => {
+        const file = path.join(FRONTEND_PUBLIC, product.img);
+        assert.ok(fs.existsSync(file), `${product.img} is missing`);
+      });
+    }
+  );
 
   it("gives every category at least one product", () => {
     categories.forEach((category) =>
@@ -97,6 +102,50 @@ describe("seedDatabase", () => {
     assert.equal(credit.type, "top-up");
     assert.equal(credit.amount, expected.balance);
     assert.equal(credit.balanceAfter, fola.balance);
+  });
+
+  it("can skip the demo users", async () => {
+    const summary = await seedDatabase({ demoUsers: false });
+    assert.equal(summary.usersCreated, 0);
+    assert.equal(await User.countDocuments(), 0);
+  });
+
+  describe("with data from the previous schema", () => {
+    // Products from before slugs existed, which break the unique index.
+    const insertLegacyProducts = async () => {
+      await Product.collection.drop().catch(() => {});
+      await Product.collection.insertMany([
+        { name: "Oculus Quest", category: "VR Glasses", price: 25000 },
+        { name: "JBL One", category: "Headphones", price: 25000 },
+      ]);
+    };
+
+    it("explains how to recover instead of failing obscurely", async () => {
+      await insertLegacyProducts();
+      await assert.rejects(seedDatabase(), /npm run seed -- --reset/);
+
+      // Leave the collection with its indexes for the following tests.
+      await Product.collection.drop();
+      await Product.createIndexes();
+    });
+
+    it("recovers when reset is requested", async () => {
+      await insertLegacyProducts();
+      const summary = await seedDatabase({ reset: true });
+
+      assert.equal(summary.products, products.length);
+      assert.equal(await Product.countDocuments(), products.length);
+      await assert.rejects(
+        Product.create({
+          name: "Duplicate",
+          slug: products[0].slug,
+          category: "mouse",
+          price: 1,
+          stock: 1,
+        }),
+        /duplicate key/
+      );
+    });
   });
 
   it("wipes existing data when reset is requested", async () => {

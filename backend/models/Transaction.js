@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { wholeNaira } = require("../utils/validators");
+
 const { Schema } = mongoose;
 
 // Ledger of balance changes. Top-ups have a positive amount, purchases a
@@ -8,8 +10,13 @@ const transactionSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     type: { type: String, enum: ["top-up", "purchase"], required: true },
-    amount: { type: Number, required: true },
-    balanceAfter: { type: Number, required: true, min: 0 },
+    amount: { type: Number, required: true, validate: wholeNaira },
+    balanceAfter: {
+      type: Number,
+      required: true,
+      min: 0,
+      validate: wholeNaira,
+    },
     order: { type: Schema.Types.ObjectId, ref: "Order" },
     description: { type: String, trim: true, maxlength: 200, default: "" },
   },

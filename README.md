@@ -39,22 +39,24 @@ Create a file named `.env` under the `backend` folder.
 Example **.env** file (see [`backend/.env.example`](backend/.env.example)):
 
 ```bash
-# Optional during development (an in-memory database is used when unset)
-MONGO_URI=mongodb://127.0.0.1:27017/game-store
+# Optional during development: leave it out to use a temporary in-memory database
+# MONGO_URI=mongodb://127.0.0.1:27017/game-store
 PORT=5000
-# Required in production
-JWT_SECRET=replace-with-a-long-random-string
+# Required whenever MONGO_URI is set; generate one with
+# node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# JWT_SECRET=
 JWT_EXPIRES_IN=7d
 CORS_ORIGIN=http://localhost:3000
 ```
 
-| Variable         | Default                  | Description                                                         |
-| ---------------- | ------------------------ | ------------------------------------------------------------------- |
-| `MONGO_URI`      | _in-memory database_     | MongoDB connection string. Required when `NODE_ENV=production`.     |
-| `PORT`           | `5000`                   | Port for both the GraphQL (`/graphql`) and REST (`/api`) endpoints. |
-| `JWT_SECRET`     | _development-only value_ | Secret used to sign login tokens. Required in production.           |
-| `JWT_EXPIRES_IN` | `7d`                     | How long login tokens stay valid.                                   |
-| `CORS_ORIGIN`    | `*`                      | Comma-separated origins allowed to call the API.                    |
+| Variable         | Default                       | Description                                                                                      |
+| ---------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| `MONGO_URI`      | _in-memory database_          | MongoDB connection string. Required unless `NODE_ENV` is unset, `development` or `test`.         |
+| `PORT`           | `5000`                        | Port for both the GraphQL (`/graphql`) and REST (`/api`) endpoints.                              |
+| `JWT_SECRET`     | _random, per process_         | Secret used to sign login tokens (at least 32 characters). Required whenever `MONGO_URI` is set. |
+| `JWT_EXPIRES_IN` | `7d`                          | How long login tokens stay valid.                                                                |
+| `CORS_ORIGIN`    | `*`                           | Comma-separated origins allowed to call the API.                                                 |
+| `DEMO_WALLET`    | `true`, `false` in production | Allows free store-credit top-ups through `topUpBalance`.                                         |
 
 2 - Install dependencies
 
@@ -72,7 +74,7 @@ npm i
 
 3 - Seed the database
 
-Load the categories, products and demo accounts into the database configured by `MONGO_URI`. Seeding is idempotent; add `-- --reset` to wipe all collections first.
+Load the categories, products and demo accounts into the database configured by `MONGO_URI`. Re-running it is safe: it restores the seeded categories and products (including their stock and prices), never touches existing users or orders, and never deletes anything. Add `-- --reset` to drop every collection first, which is also how to upgrade a database created with the old schema.
 
 ```bash
 npm run seed
@@ -138,7 +140,7 @@ The seed creates two accounts for local development:
 | `fola`   | `gamestore123` | customer | ₦500,000      |
 | `admin`  | `admin12345`   | admin    | ₦0            |
 
-> These credentials are for local development only. Never seed them into a production database.
+> These credentials are for local development only. `npm run seed` skips them when `NODE_ENV=production` unless you pass `-- --demo-users`.
 
 ## Data model
 
