@@ -35,6 +35,7 @@
         "endOfLine": "auto"
       }
     ],
+    "react/require-default-props": "off",
     "eqeqeq": "off",
     "no-underscore-dangle": "off"
   }

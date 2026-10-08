@@ -9,19 +9,21 @@ import Conditions from "../pages/conditions/Conditions";
 import Search from "../pages/search/Search";
 
 // Products pages
-import Products from "../components/products/Products";
-// import Product from "../components/product/Product";
+import Category from "../pages/category/Category";
+import ProductDetail from "../pages/productDetail/ProductDetail";
 import NewProduct from "../pages/newProduct/NewProduct";
 
 // Auth pages
 import Login from "../pages/login/Login";
 import Register from "../pages/register/Register";
 
-// User spesific pages
+// User specific pages
 import Profile from "../pages/profile/Profile";
 import Favorite from "../pages/favorite/Favorite";
 import Balance from "../pages/balance/Balance";
 import Cart from "../pages/cart/Cart";
+
+import RequireAuth from "../components/requireAuth/RequireAuth";
 
 const AppRoutes = () => {
   return (
@@ -33,20 +35,47 @@ const AppRoutes = () => {
       <Route path="/conditions" element={<Conditions />} />
 
       {/* Products routes */}
-      <Route path="/products" element={<Products />} />
-      {/* <Route path="/product/:id" element={<Product />} /> */}
-      <Route path="/products/:category" element={<Products />} />
-      <Route path="/products/new" element={<NewProduct />} />
-      {/* <Route path="/product/update/:id" element={<Product />} /> */}
+      <Route path="/products" element={<Home />} />
+      <Route
+        path="/products/new"
+        element={
+          <RequireAuth adminOnly>
+            <NewProduct />
+          </RequireAuth>
+        }
+      />
+      <Route path="/products/:category" element={<Category />} />
+      <Route path="/product/:slug" element={<ProductDetail />} />
 
       {/* Auth routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* User spesific routes */}
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/favorite" element={<Favorite />} />
-      <Route path="/balance" element={<Balance />} />
+      {/* User specific routes */}
+      <Route
+        path="/profile"
+        element={
+          <RequireAuth>
+            <Profile />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/favorite"
+        element={
+          <RequireAuth>
+            <Favorite />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/balance"
+        element={
+          <RequireAuth>
+            <Balance />
+          </RequireAuth>
+        }
+      />
       <Route path="/cart" element={<Cart />} />
 
       {/* Redirection */}

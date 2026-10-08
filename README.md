@@ -100,9 +100,9 @@ Run the backend test suite with `npm test`.
 
 ### Frontend
 
-1 - Create environment variables file
+1 - Create environment variables file (optional)
 
-Create a file named `.env.local` under the `frontend` folder.
+Create a file named `.env.local` under the `frontend` folder (see [`frontend/.env.example`](frontend/.env.example)). Without it, the app talks to `http://localhost:5000/graphql`.
 
 Example **.env.local** file:
 
@@ -126,11 +126,29 @@ npm i
 
 3 - Start the frontend
 
-Start the frontend in development.
+Start the frontend in development and open [http://localhost:3000](http://localhost:3000).
 
 ```bash
 npm start
 ```
+
+Other useful scripts:
+
+| Command         | Description                                      |
+| --------------- | ------------------------------------------------ |
+| `npm test`      | Runs the component and unit tests in watch mode. |
+| `npm run lint`  | Lints the code with ESLint and Prettier.         |
+| `npm run build` | Creates an optimized production build.           |
+
+## Features
+
+- **Catalog**: browse all products, categories with product counts, product pages with specifications and related products, and fuzzy search.
+- **Accounts**: register and sign in; sessions persist across reloads and expire safely.
+- **Cart and checkout**: the cart is saved in the browser and synced across tabs, re-checked against live stock and prices when you open it, and checks out against the store balance.
+- **Favorites**: save products with the heart button; favorites follow your account.
+- **Balance**: top up demo store credit and review every top-up and purchase.
+- **Profile**: edit your details and review your order history.
+- **Admin**: admins can add products from the **New product** page.
 
 ## Demo accounts
 
