@@ -197,7 +197,11 @@ const Cart = () => {
             title={
               placedOrder ? "Thanks for your order!" : "Your cart is empty"
             }
-            description="Find something you love in the catalog and it will show up here."
+            description={
+              placedOrder
+                ? "We're getting it ready. Keep browsing for more gear while you wait."
+                : "Find something you love in the catalog and it will show up here."
+            }
             action={<ButtonLink to="/catalog">Browse the catalog</ButtonLink>}
           />
         </Stack>
