@@ -11,6 +11,7 @@ import { OrdersData } from "../../types/Types";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import formatDate from "../../utils/formatDate";
 import { colors, radii } from "../../styles/theme";
+import { isDialogOpen } from "../../hooks/useDialog";
 
 const Wrapper = styled.div`
   position: relative;
@@ -37,6 +38,20 @@ const Panel = styled.div`
   border-radius: ${radii.md};
   background: #262628;
   box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.5);
+
+  &:focus {
+    outline: none;
+  }
+
+  /* Anchored to the bell it would overflow narrow screens, so pin it to the
+     viewport edges instead. */
+  @media screen and (max-width: 480px) {
+    position: fixed;
+    top: 4.5rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+  }
 `;
 
 const Title = styled.h2`
@@ -137,7 +152,8 @@ const Notifications = () => {
       if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      // A modal opened on top (e.g. the cart) handles its own Escape.
+      if (event.key === "Escape" && !isDialogOpen()) {
         setOpen(false);
         triggerRef.current?.focus();
       }
@@ -150,20 +166,31 @@ const Notifications = () => {
     };
   }, [open]);
 
+  // Close once keyboard focus moves somewhere else on the page.
+  const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+    const next = event.relatedTarget as Node | null;
+    if (next && !wrapperRef.current?.contains(next)) setOpen(false);
+  };
+
   return (
-    <Wrapper ref={wrapperRef}>
+    <Wrapper ref={wrapperRef} onBlur={handleBlur}>
       <Trigger
         ref={triggerRef}
         type="button"
         aria-label="Notifications"
         aria-expanded={open}
-        aria-controls={panelId}
+        aria-controls={open ? panelId : undefined}
         onClick={() => setOpen((prev) => !prev)}
       >
         <IoMdNotificationsOutline size="1.75rem" aria-hidden />
       </Trigger>
       {open && (
-        <Panel id={panelId} role="region" aria-label="Notifications">
+        <Panel
+          id={panelId}
+          role="region"
+          aria-label="Notifications"
+          tabIndex={-1}
+        >
           <Title>Notifications</Title>
           {user ? (
             <OrderUpdates />

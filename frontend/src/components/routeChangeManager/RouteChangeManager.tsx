@@ -1,23 +1,34 @@
 import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigationType } from "react-router-dom";
 
 /**
- * On client-side navigation, scrolls to the top and moves focus to the main
- * region so keyboard and screen reader users start at the new page's content
- * (browsers do this automatically only for full page loads).
+ * On client-side navigation, moves focus to the new page's heading (or the
+ * main region while it loads) so keyboard and screen reader users start at
+ * the new content, as they would after a full page load. New pages also
+ * scroll to the top; back/forward keeps the browser's scroll position.
  */
 const RouteChangeManager = ({ mainId }: { mainId: string }) => {
   const { pathname } = useLocation();
-  const isFirstRender = useRef(true);
+  const navigationType = useNavigationType();
+  // Tracks the last path so the initial render (and React's StrictMode
+  // double-invoked effects) never steal focus.
+  const previousPath = useRef(pathname);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
+
+    if (navigationType !== "POP") window.scrollTo(0, 0);
+
+    const main = document.getElementById(mainId);
+    const heading = main?.querySelector<HTMLElement>("h1");
+    if (heading) {
+      heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+    } else {
+      main?.focus({ preventScroll: true });
     }
-    window.scrollTo(0, 0);
-    document.getElementById(mainId)?.focus({ preventScroll: true });
-  }, [pathname, mainId]);
+  }, [pathname, navigationType, mainId]);
 
   return null;
 };

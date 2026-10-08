@@ -50,9 +50,17 @@ const Container = styled.article`
   color: #fff;
   transition: outline 30ms ease-in;
 
+  &:hover {
+    outline: 0.206875rem solid rgba(255, 255, 255, 0.5);
+
+    ${FavoriteButton} {
+      opacity: 1;
+    }
+  }
+
   /* :focus-visible keeps the highlight for keyboard users without leaving
-     it stuck on after a mouse click. */
-  &:hover,
+     it stuck on after a mouse click. A separate rule, so browsers without
+     :has() still apply the hover styles above. */
   &:has(:focus-visible) {
     outline: 0.206875rem solid rgba(255, 255, 255, 0.5);
 

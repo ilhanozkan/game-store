@@ -19,7 +19,8 @@ import IconSwitcher from "../../components/iconSwitcher/IconSwitcher";
 import { Bone } from "../../components/skeleton/Skeleton";
 
 const Container = styled.aside<{ $open: boolean }>`
-  padding: 2.875rem 2.1875rem;
+  --sidebar-padding-x: 2.1875rem;
+  padding: 2.875rem var(--sidebar-padding-x);
   background-color: ${colors.background};
 
   a {
@@ -40,7 +41,8 @@ const Container = styled.aside<{ $open: boolean }>`
       left: 0,
       zIndex: 40,
       width: "min(19rem, 85vw)",
-      padding: "1.5rem 1.75rem",
+      "--sidebar-padding-x": "1.75rem",
+      padding: "1.5rem var(--sidebar-padding-x)",
       overflowY: "auto",
       boxShadow: $open ? "1rem 0 2rem rgba(0, 0, 0, 0.45)" : "none",
       transform: $open ? "translateX(0)" : "translateX(-100%)",
@@ -112,7 +114,7 @@ const NavItem = styled.li`
       &::before {
         content: "";
         position: absolute;
-        left: -2.1875rem;
+        left: calc(-1 * var(--sidebar-padding-x));
         top: 0;
         bottom: 0;
         width: 0.25rem;
@@ -199,7 +201,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
         tabIndex={drawerOpen ? -1 : undefined}
       >
         <TopRow>
-          <Link to="/" aria-label="Game Drill home">
+          <Link to="/" aria-label="Game Drill home" onClick={onClose}>
             <Logo width={12.3125} />
           </Link>
           {isCompact && (
@@ -213,11 +215,11 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
           )}
         </TopRow>
         <Nav aria-label="Main">
-          <CatalogButton />
+          <CatalogButton onClick={onClose} />
           <TopNavs>
             {pageList.map((item) => (
               <NavItem key={item.name}>
-                <NavLink to={item.path}>
+                <NavLink to={item.path} onClick={onClose}>
                   <IconSwitcher name={item.name} />
                   <span>{item.name}</span>
                   {item.count && <Count>{item.count}</Count>}
@@ -238,7 +240,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
               ))}
             {data?.categories.map((category) => (
               <NavItem key={category.slug}>
-                <NavLink to={`/products/${category.slug}`}>
+                <NavLink to={`/products/${category.slug}`} onClick={onClose}>
                   <IconSwitcher name={category.slug} />
                   <span>{category.name}</span>
                 </NavLink>
@@ -251,7 +253,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
           <ul>
             {helpPagesList.map((item) => (
               <NavItem key={item.name}>
-                <NavLink to={item.path}>
+                <NavLink to={item.path} onClick={onClose}>
                   <IconSwitcher name={item.name} />
                   <span>{item.name}</span>
                 </NavLink>

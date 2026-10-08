@@ -1,5 +1,6 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
+import styled from "styled-components";
 import { useQuery } from "@apollo/client";
 import { MdOutlineInventory2 } from "react-icons/md";
 
@@ -12,7 +13,18 @@ import SortSelect, { parseSort } from "../sortSelect/SortSelect";
 import { ProductGridSkeleton } from "../skeleton/Skeleton";
 import { PageHeader } from "../ui/Layout";
 import { EmptyState, ErrorState } from "../ui/States";
+import { Alert } from "../ui/Form";
 import { ButtonLink } from "../ui/Button";
+
+// Dims the current results while a new sort order loads.
+const Results = styled.div<{ $pending: boolean }>`
+  opacity: ${({ $pending }) => ($pending ? 0.55 : 1)};
+  transition: opacity 150ms ease-in;
+`;
+
+const InlineError = styled(Alert)`
+  margin-bottom: 1rem;
+`;
 
 type ProductListingProps = {
   title: string;
@@ -84,7 +96,14 @@ const ProductListing = ({
           )
         }
       />
-      <div aria-busy={loading}>{content}</div>
+      {error && previousData && !data && (
+        <InlineError $tone="error" role="alert">
+          {getErrorMessage(error)} Showing the previous results.
+        </InlineError>
+      )}
+      <Results $pending={loading && Boolean(shown)} aria-busy={loading}>
+        {content}
+      </Results>
     </>
   );
 };

@@ -28,6 +28,8 @@ type ToastOptions = {
 type Toast = ToastOptions & { id: number; tone: Tone };
 
 const DURATION_MS = 5000;
+// Toasts with an action stay longer so there is time to reach the button.
+const ACTION_DURATION_MS = 8000;
 const MAX_VISIBLE = 3;
 
 const ToastContext = createContext<((toast: ToastOptions) => void) | null>(
@@ -38,7 +40,9 @@ const Viewport = styled.div`
   position: fixed;
   right: 1.5rem;
   bottom: 1.5rem;
-  z-index: 50;
+  /* Below the drawers and their backdrops (35+), so toasts never cover a
+     modal's controls. */
+  z-index: 30;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -48,6 +52,16 @@ const Viewport = styled.div`
   @media screen and (max-width: 768px) {
     right: 1rem;
     bottom: 1rem;
+  }
+`;
+
+const Region = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &:empty {
+    display: none;
   }
 `;
 
@@ -134,23 +148,30 @@ const ToastItem = ({
   toast: Toast;
   onDismiss: (id: number) => void;
 }) => {
-  const [paused, setPaused] = useState(false);
+  // Hover and keyboard focus pause the timer independently, so moving the
+  // mouse away doesn't dismiss a toast that still has focus.
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const paused = hovered || focused;
+  const duration = toast.action ? ACTION_DURATION_MS : DURATION_MS;
 
-  // Auto-dismiss, pausing while hovered or focused so it can be read.
   useEffect(() => {
     if (paused) return undefined;
-    const timer = window.setTimeout(() => onDismiss(toast.id), DURATION_MS);
+    const timer = window.setTimeout(() => onDismiss(toast.id), duration);
     return () => window.clearTimeout(timer);
-  }, [paused, toast.id, onDismiss]);
+  }, [paused, duration, toast.id, onDismiss]);
 
   return (
     <Item
       $tone={toast.tone}
-      role={toast.tone === "error" ? "alert" : "status"}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+          setFocused(false);
+        }
+      }}
     >
       {icons[toast.tone]}
       <Message>{toast.message}</Message>
@@ -199,10 +220,23 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <Viewport aria-live="polite" aria-relevant="additions">
-        {toasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onDismiss={dismiss} />
-        ))}
+      {/* Both live regions stay mounted: screen readers often miss a region
+          that is inserted together with its text. */}
+      <Viewport>
+        <Region role="status">
+          {toasts
+            .filter((toast) => toast.tone !== "error")
+            .map((toast) => (
+              <ToastItem key={toast.id} toast={toast} onDismiss={dismiss} />
+            ))}
+        </Region>
+        <Region role="alert">
+          {toasts
+            .filter((toast) => toast.tone === "error")
+            .map((toast) => (
+              <ToastItem key={toast.id} toast={toast} onDismiss={dismiss} />
+            ))}
+        </Region>
       </Viewport>
     </ToastContext.Provider>
   );

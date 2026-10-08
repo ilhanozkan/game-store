@@ -180,7 +180,11 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => setQuantity(1), [slug]);
-  usePageTitle(data ? product?.name || "Product not found" : undefined);
+  let title: string | null = null;
+  if (product) title = product.name;
+  else if (error && !data) title = "Something went wrong";
+  else if (data) title = "Product not found";
+  usePageTitle(title);
 
   if (loading && !data) return <ProductDetailSkeleton />;
   if (error && !data) {

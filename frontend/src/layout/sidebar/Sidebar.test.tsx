@@ -61,4 +61,17 @@ describe("Sidebar", () => {
     await userEvent.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  it("closes the drawer when a link is chosen, even for the current page", async () => {
+    mockMatchMedia(true);
+    renderWithProviders(<Harness />, { route: "/help" });
+
+    await userEvent.click(screen.getByRole("button", { name: "menu" }));
+    const dialog = screen.getByRole("dialog", { name: "Site navigation" });
+    expect(dialog).toContainElement(document.activeElement as HTMLElement);
+
+    await userEvent.click(screen.getByRole("link", { name: "Help" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
+  });
 });

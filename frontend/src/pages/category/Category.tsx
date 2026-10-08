@@ -19,7 +19,12 @@ const Category = () => {
     { variables: { slug } }
   );
 
-  usePageTitle(data?.category === null ? "Category not found" : undefined);
+  // ProductListing titles the page once the category has loaded.
+  let title: string | null | undefined;
+  if (loading && !data) title = null;
+  else if (error && !data) title = "Something went wrong";
+  else if (!data?.category) title = "Category not found";
+  usePageTitle(title);
 
   if (loading && !data) return <ProductGridSkeleton />;
   if (error && !data) {

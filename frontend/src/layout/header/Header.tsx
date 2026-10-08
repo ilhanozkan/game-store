@@ -7,7 +7,7 @@ import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import Search from "../../components/search/Search";
-import CartBox from "../../components/cartBox/CartBox";
+import CartBox, { CART_BUTTON_ID } from "../../components/cartBox/CartBox";
 import Avatar from "../../components/avatar/Avatar";
 import Logo from "../../components/logo/Logo";
 import Notifications from "../../components/notifications/Notifications";
@@ -153,6 +153,7 @@ const Header = ({ onMenuClick, menuOpen }: HeaderProps) => {
         )}
         <Notifications />
         <IconButton
+          id={CART_BUTTON_ID}
           type="button"
           onClick={openCart}
           aria-label={`Open cart, ${itemCount} item${

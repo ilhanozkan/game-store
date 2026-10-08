@@ -13,6 +13,9 @@ import { Button, ButtonLink } from "../ui/Button";
 import { Alert } from "../ui/Form";
 import QuantityStepper from "../quantityStepper/QuantityStepper";
 
+// id of the header button that opens the cart.
+export const CART_BUTTON_ID = "cart-button";
+
 const Backdrop = styled.div`
   position: fixed;
   inset: 0;
@@ -178,7 +181,10 @@ const Panel = ({
   children: React.ReactNode;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  useDialog(ref, true, onClose);
+  useDialog(ref, true, onClose, {
+    // If the opener is gone (e.g. a toast's "View cart"), return to the bag.
+    returnFocusTo: () => document.getElementById(CART_BUTTON_ID),
+  });
 
   return (
     <>
