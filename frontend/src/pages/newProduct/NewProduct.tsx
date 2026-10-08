@@ -8,6 +8,8 @@ import { CATEGORIES_QUERY } from "../../queries/Queries";
 import { CREATE_PRODUCT_MUTATION } from "../../queries/Mutations";
 import { CategoriesData, Product } from "../../types/Types";
 import { getErrorMessage } from "../../utils/apolloErrors";
+import usePageTitle from "../../hooks/usePageTitle";
+import { useToast } from "../../components/toast/ToastContext";
 import { colors } from "../../styles/theme";
 import { Button } from "../../components/ui/Button";
 import {
@@ -80,7 +82,9 @@ const newSpec = (): Spec => {
 };
 
 const NewProduct = () => {
+  usePageTitle("New product");
   const navigate = useNavigate();
+  const showToast = useToast();
   const { data: categoryData } = useQuery<CategoriesData>(CATEGORIES_QUERY);
   const [createProduct, { loading, error }] = useMutation<{
     createProduct: Product;
@@ -137,7 +141,12 @@ const NewProduct = () => {
           },
         },
       });
-      if (data) navigate(`/product/${data.createProduct.slug}`);
+      if (data) {
+        showToast({
+          message: `${data.createProduct.name} is now in the store`,
+        });
+        navigate(`/product/${data.createProduct.slug}`);
+      }
     } catch {
       // Shown through `error` below.
     }

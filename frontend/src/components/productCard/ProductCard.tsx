@@ -6,6 +6,7 @@ import { FiPlus } from "react-icons/fi";
 
 import { maxQuantityFor, useCart } from "../../context/CartContext";
 import useFavorite from "../../hooks/useFavorite";
+import { useToast } from "../toast/ToastContext";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import { Product } from "../../types/Types";
 import { colors, radii } from "../../styles/theme";
@@ -31,6 +32,11 @@ const FavoriteButton = styled.button<{ $active: boolean }>`
   &:hover {
     transform: scale(1.1);
   }
+
+  /* Touch screens can't hover, so keep the button visible there. */
+  @media (hover: none) {
+    opacity: 1;
+  }
 `;
 
 const Container = styled.article`
@@ -44,8 +50,10 @@ const Container = styled.article`
   color: #fff;
   transition: outline 30ms ease-in;
 
+  /* :focus-visible keeps the highlight for keyboard users without leaving
+     it stuck on after a mouse click. */
   &:hover,
-  &:focus-within {
+  &:has(:focus-visible) {
     outline: 0.206875rem solid rgba(255, 255, 255, 0.5);
 
     ${FavoriteButton} {
@@ -166,17 +174,39 @@ const PlusCircle = styled.span`
 const ProductCard = ({ product }: { product: Product }) => {
   const { name, slug, category, categorySlug, price, stock, img } = product;
   const id = product._id;
-  const { getQuantity, addItem, updateQuantity } = useCart();
+  const { getQuantity, addItem, updateQuantity, openCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorite();
+  const showToast = useToast();
 
   const quantity = getQuantity(id);
   const favorite = isFavorite(id);
   const soldOut = stock <= 0;
   const productUrl = `/product/${slug}`;
 
-  const handleFavorite = () => {
-    toggleFavorite(id).catch(() => {
-      // The optimistic update is rolled back automatically on failure.
+  const handleFavorite = async () => {
+    try {
+      const added = await toggleFavorite(id);
+      if (added === null) return;
+      showToast({
+        message: added
+          ? `Saved ${name} to your favorites`
+          : `Removed ${name} from your favorites`,
+        tone: "info",
+      });
+    } catch {
+      // The optimistic update is rolled back automatically.
+      showToast({
+        message: "We couldn't update your favorites. Please try again.",
+        tone: "error",
+      });
+    }
+  };
+
+  const handleAdd = () => {
+    addItem(product);
+    showToast({
+      message: `Added ${name} to your cart`,
+      action: { label: "View cart", onClick: openCart },
     });
   };
 
@@ -224,11 +254,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               label={name}
             />
           ) : (
-            <AddButton
-              type="button"
-              onClick={() => addItem(product)}
-              disabled={soldOut}
-            >
+            <AddButton type="button" onClick={handleAdd} disabled={soldOut}>
               <PlusCircle aria-hidden>
                 <FiPlus />
               </PlusCircle>

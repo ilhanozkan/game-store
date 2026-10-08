@@ -10,6 +10,7 @@ import { useAuth } from "../../context/AuthContext";
 import { CHECKOUT_MUTATION } from "../../queries/Mutations";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import { getErrorCode, getErrorMessage } from "../../utils/apolloErrors";
+import usePageTitle from "../../hooks/usePageTitle";
 import { colors, radii } from "../../styles/theme";
 import QuantityStepper from "../../components/quantityStepper/QuantityStepper";
 import { Button, ButtonLink } from "../../components/ui/Button";
@@ -39,6 +40,7 @@ const Items = styled.ul`
 const Item = styled.li`
   display: grid;
   grid-template-columns: 5rem minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "thumb info stepper total remove";
   align-items: center;
   gap: 1.25rem;
   padding: 1.25rem 1.5rem;
@@ -47,12 +49,24 @@ const Item = styled.li`
     border-bottom: 1px solid ${colors.border};
   }
 
+  /* On phones, stack the controls under the product name. */
   @media screen and (max-width: 768px) {
     grid-template-columns: 4rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      "thumb info remove"
+      "thumb stepper total";
+    gap: 0.75rem 1rem;
+    padding: 1rem;
   }
 `;
 
+const Area = styled.div<{ $area: string }>`
+  grid-area: ${({ $area }) => $area};
+  min-width: 0;
+`;
+
 const Thumb = styled.img`
+  grid-area: thumb;
   width: 5rem;
   height: 5rem;
   object-fit: contain;
@@ -81,6 +95,7 @@ const UnitPrice = styled.span`
 `;
 
 const LineTotal = styled.span`
+  grid-area: total;
   min-width: 6.5rem;
   color: ${colors.primary};
   font-weight: 600;
@@ -88,6 +103,8 @@ const LineTotal = styled.span`
 `;
 
 const RemoveButton = styled.button`
+  grid-area: remove;
+  justify-self: end;
   display: flex;
   padding: 0.5rem;
   border: none;
@@ -136,6 +153,7 @@ const Cart = () => {
   const { items, itemCount, subtotal, updateQuantity, removeItem, clearCart } =
     useCart();
   const { user } = useAuth();
+  usePageTitle("Cart");
   const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
   const [checkout, { loading, error, reset }] = useMutation<{
     checkout: PlacedOrder;
@@ -221,21 +239,27 @@ const Cart = () => {
         <Items aria-label="Items in your cart">
           {items.map((item) => (
             <Item key={item.productId}>
-              {item.img ? <Thumb src={item.img} alt="" /> : <span />}
-              <div>
+              {item.img ? (
+                <Thumb src={item.img} alt="" />
+              ) : (
+                <Area $area="thumb" />
+              )}
+              <Area $area="info">
                 <Name to={`/product/${item.slug}`}>{item.name}</Name>
                 <UnitPrice>{formatCurrency(item.price)} each</UnitPrice>
-              </div>
-              <QuantityStepper
-                value={item.quantity}
-                max={maxQuantityFor(item.stock)}
-                min={1}
-                onChange={(q) => {
-                  reset();
-                  updateQuantity(item.productId, q);
-                }}
-                label={item.name}
-              />
+              </Area>
+              <Area $area="stepper">
+                <QuantityStepper
+                  value={item.quantity}
+                  max={maxQuantityFor(item.stock)}
+                  min={1}
+                  onChange={(q) => {
+                    reset();
+                    updateQuantity(item.productId, q);
+                  }}
+                  label={item.name}
+                />
+              </Area>
               <LineTotal>
                 {formatCurrency(item.price * item.quantity)}
               </LineTotal>

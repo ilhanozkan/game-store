@@ -9,10 +9,12 @@ import { PRODUCT_QUERY, PRODUCTS_QUERY } from "../../queries/Queries";
 import { ProductData, ProductsData } from "../../types/Types";
 import { maxQuantityFor, useCart } from "../../context/CartContext";
 import useFavorite from "../../hooks/useFavorite";
+import usePageTitle from "../../hooks/usePageTitle";
+import { useToast } from "../../components/toast/ToastContext";
+import { ProductDetailSkeleton } from "../../components/skeleton/Skeleton";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import { getErrorMessage } from "../../utils/apolloErrors";
 import { colors, radii } from "../../styles/theme";
-import Loading from "../../components/loading/Loading";
 import Rating from "../../components/rating/Rating";
 import QuantityStepper from "../../components/quantityStepper/QuantityStepper";
 import ProductGrid from "../../components/productGrid/ProductGrid";
@@ -174,11 +176,13 @@ const ProductDetail = () => {
   });
   const { getQuantity, addItem, openCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorite();
+  const showToast = useToast();
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => setQuantity(1), [slug]);
+  usePageTitle(data ? product?.name || "Product not found" : undefined);
 
-  if (loading && !data) return <Loading label="Loading product" />;
+  if (loading && !data) return <ProductDetailSkeleton />;
   if (error && !data) {
     return (
       <ErrorState message={getErrorMessage(error)} onRetry={() => refetch()} />
@@ -204,9 +208,33 @@ const ProductDetail = () => {
     .slice(0, 4);
 
   const handleAdd = () => {
-    addItem(product, Math.min(quantity, canAdd));
+    const added = Math.min(quantity, canAdd);
+    addItem(product, added);
     setQuantity(1);
-    openCart();
+    showToast({
+      message: `Added ${added > 1 ? `${added} × ` : ""}${
+        product.name
+      } to your cart`,
+      action: { label: "View cart", onClick: openCart },
+    });
+  };
+
+  const handleFavorite = async () => {
+    try {
+      const nowFavorite = await toggleFavorite(product._id);
+      if (nowFavorite === null) return;
+      showToast({
+        message: nowFavorite
+          ? `Saved ${product.name} to your favorites`
+          : `Removed ${product.name} from your favorites`,
+        tone: "info",
+      });
+    } catch {
+      showToast({
+        message: "We couldn't update your favorites. Please try again.",
+        tone: "error",
+      });
+    }
   };
 
   return (
@@ -258,7 +286,7 @@ const ProductDetail = () => {
               $variant="secondary"
               $size="lg"
               aria-pressed={favorite}
-              onClick={() => toggleFavorite(product._id).catch(() => {})}
+              onClick={handleFavorite}
             >
               <TiHeartFullOutline
                 aria-hidden

@@ -6,7 +6,8 @@ import { MdOutlineCategory } from "react-icons/md";
 import { CATEGORY_QUERY } from "../../queries/Queries";
 import { CategoryData } from "../../types/Types";
 import { getErrorMessage } from "../../utils/apolloErrors";
-import Loading from "../../components/loading/Loading";
+import usePageTitle from "../../hooks/usePageTitle";
+import { ProductGridSkeleton } from "../../components/skeleton/Skeleton";
 import ProductListing from "../../components/productListing/ProductListing";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 import { ButtonLink } from "../../components/ui/Button";
@@ -18,7 +19,9 @@ const Category = () => {
     { variables: { slug } }
   );
 
-  if (loading && !data) return <Loading />;
+  usePageTitle(data?.category === null ? "Category not found" : undefined);
+
+  if (loading && !data) return <ProductGridSkeleton />;
   if (error && !data) {
     return (
       <ErrorState message={getErrorMessage(error)} onRetry={() => refetch()} />

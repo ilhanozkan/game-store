@@ -11,6 +11,8 @@ import { OrdersData } from "../../types/Types";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import formatDate from "../../utils/formatDate";
 import { getErrorMessage } from "../../utils/apolloErrors";
+import usePageTitle from "../../hooks/usePageTitle";
+import { useToast } from "../../components/toast/ToastContext";
 import { colors, radii } from "../../styles/theme";
 import Avatar from "../../components/avatar/Avatar";
 import Loading from "../../components/loading/Loading";
@@ -262,16 +264,23 @@ const OrderHistory = () => {
 };
 
 const Profile = () => {
+  usePageTitle("Profile");
   const { user, logout } = useAuth();
+  const showToast = useToast();
   const { data } = useQuery<OrdersData>(MY_ORDERS_QUERY);
   if (!user) return null;
+
+  const handleLogout = () => {
+    logout();
+    showToast({ message: "You've signed out. See you soon!", tone: "info" });
+  };
 
   return (
     <>
       <PageHeader
         title="Your profile"
         actions={
-          <Button $variant="secondary" onClick={logout}>
+          <Button $variant="secondary" onClick={handleLogout}>
             Sign out
           </Button>
         }

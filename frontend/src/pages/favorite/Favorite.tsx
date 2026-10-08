@@ -5,13 +5,15 @@ import { MdFavoriteBorder } from "react-icons/md";
 import { FAVORITES_QUERY } from "../../queries/Queries";
 import { FavoritesData } from "../../types/Types";
 import { getErrorMessage } from "../../utils/apolloErrors";
-import Loading from "../../components/loading/Loading";
+import usePageTitle from "../../hooks/usePageTitle";
+import { ProductGridSkeleton } from "../../components/skeleton/Skeleton";
 import ProductGrid from "../../components/productGrid/ProductGrid";
 import { ButtonLink } from "../../components/ui/Button";
 import { PageHeader } from "../../components/ui/Layout";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 
 const Favorite = () => {
+  usePageTitle("Favorites");
   const { data, loading, error, refetch } = useQuery<FavoritesData>(
     FAVORITES_QUERY,
     // Favorites change from other pages, so always revalidate.
@@ -22,7 +24,7 @@ const Favorite = () => {
 
   let content;
   if (loading && !data) {
-    content = <Loading label="Loading favorites" />;
+    content = <ProductGridSkeleton count={4} label="Loading favorites" />;
   } else if (error && !data) {
     content = (
       <ErrorState message={getErrorMessage(error)} onRetry={() => refetch()} />

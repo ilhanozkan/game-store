@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { colors } from "../../styles/theme";
 import { PageHeader, Panel } from "../../components/ui/Layout";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const Article = styled(Panel)`
   max-width: 52rem;
@@ -75,23 +76,27 @@ const SECTIONS: { title: string; body: string[] }[] = [
   },
 ];
 
-const Conditions = () => (
-  <>
-    <PageHeader
-      title="Terms & conditions"
-      subtitle="Last updated 8 October 2026"
-    />
-    <Article as="article">
-      {SECTIONS.map((section) => (
-        <section key={section.title}>
-          <h2>{section.title}</h2>
-          {section.body.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </section>
-      ))}
-    </Article>
-  </>
-);
+const Conditions = () => {
+  usePageTitle("Terms & conditions");
+
+  return (
+    <>
+      <PageHeader
+        title="Terms & conditions"
+        subtitle="Last updated 8 October 2026"
+      />
+      <Article as="article">
+        {SECTIONS.map((section) => (
+          <section key={section.title}>
+            <h2>{section.title}</h2>
+            {section.body.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </section>
+        ))}
+      </Article>
+    </>
+  );
+};
 
 export default Conditions;

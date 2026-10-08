@@ -7,32 +7,16 @@
 }
 
 /* Scale the whole UI from the root so rem-based sizes and inherited font sizes
-   stay proportional on smaller screens. */
+   stay proportional. Below 1440px the layout reflows instead of shrinking
+   further, keeping text readable on phones. */
 html {
   font-size: 16px;
+  color-scheme: dark;
 }
 
 @media screen and (max-width: 1440px) {
   html {
     font-size: 14px;
-  }
-}
-
-@media screen and (max-width: 1024px) {
-  html {
-    font-size: 12px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  html {
-    font-size: 10px;
-  }
-}
-
-@media screen and (max-width: 320px) {
-  html {
-    font-size: 8px;
   }
 }
 
@@ -75,6 +59,37 @@ h4 {
 strong,
 b {
   font-weight: 700;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* A clear focus ring for keyboard users; mouse clicks don't trigger it. */
+:focus-visible {
+  outline: 2px solid #618dff;
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+}
+
+::selection {
+  background: rgba(97, 141, 255, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 code {

@@ -1,12 +1,15 @@
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { MdOutlineInventory2 } from "react-icons/md";
 
 import { PRODUCTS_QUERY } from "../../queries/Queries";
-import { ProductsData } from "../../types/Types";
+import { ProductsData, ProductSort } from "../../types/Types";
 import { getErrorMessage } from "../../utils/apolloErrors";
-import Loading from "../loading/Loading";
+import usePageTitle from "../../hooks/usePageTitle";
 import ProductGrid from "../productGrid/ProductGrid";
+import SortSelect, { parseSort } from "../sortSelect/SortSelect";
+import { ProductGridSkeleton } from "../skeleton/Skeleton";
 import { PageHeader } from "../ui/Layout";
 import { EmptyState, ErrorState } from "../ui/States";
 import { ButtonLink } from "../ui/Button";
@@ -15,31 +18,45 @@ type ProductListingProps = {
   title: string;
   description?: string;
   category?: string;
+  pageTitle?: string | null;
 };
 
 const countLabel = (count: number) =>
   `${count} product${count === 1 ? "" : "s"}`;
 
-// Fetches and shows a titled grid of products, optionally for one category.
+// Fetches and shows a titled, sortable grid of products, optionally for one
+// category. The sort order lives in the URL (?sort=price_asc) so it can be
+// shared and survives reloads.
 const ProductListing = ({
   title,
   description = "",
   category = undefined,
+  pageTitle = title,
 }: ProductListingProps) => {
-  const { data, loading, error, refetch } = useQuery<ProductsData>(
-    PRODUCTS_QUERY,
-    { variables: { category } }
-  );
+  usePageTitle(pageTitle);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sort = parseSort(searchParams.get("sort"));
+  const { data, previousData, loading, error, refetch } =
+    useQuery<ProductsData>(PRODUCTS_QUERY, { variables: { category, sort } });
 
-  const products = data?.products || [];
-  const subtitle = [description, data ? countLabel(products.length) : ""]
+  // Keep showing the current products while a new sort order loads.
+  const shown = data || previousData;
+  const products = shown?.products || [];
+  const subtitle = [description, shown ? countLabel(products.length) : ""]
     .filter(Boolean)
     .join(" · ");
 
+  const handleSort = (next: ProductSort) => {
+    const params = new URLSearchParams(searchParams);
+    if (next === "FEATURED") params.delete("sort");
+    else params.set("sort", next.toLowerCase());
+    setSearchParams(params, { replace: true });
+  };
+
   let content;
-  if (loading && !data) {
-    content = <Loading label="Loading products" />;
-  } else if (error && !data) {
+  if (loading && !shown) {
+    content = <ProductGridSkeleton />;
+  } else if (error && !shown) {
     content = (
       <ErrorState message={getErrorMessage(error)} onRetry={() => refetch()} />
     );
@@ -58,8 +75,16 @@ const ProductListing = ({
 
   return (
     <>
-      <PageHeader title={title} subtitle={subtitle} />
-      {content}
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+        actions={
+          products.length > 1 && (
+            <SortSelect value={sort} onChange={handleSort} />
+          )
+        }
+      />
+      <div aria-busy={loading}>{content}</div>
     </>
   );
 };

@@ -4,12 +4,16 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getErrorMessage } from "../../utils/apolloErrors";
 import safeRedirect from "../../utils/safeRedirect";
+import usePageTitle from "../../hooks/usePageTitle";
+import { useToast } from "../../components/toast/ToastContext";
 import { Button } from "../../components/ui/Button";
 import { Alert, Field, Form, Input } from "../../components/ui/Form";
 import AuthLayout, { Footnote } from "../auth/AuthLayout";
 
 const Login = () => {
+  usePageTitle("Sign in");
   const { user, login } = useAuth();
+  const showToast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = safeRedirect(searchParams.get("redirect"));
@@ -25,7 +29,8 @@ const Login = () => {
     setError("");
     setSubmitting(true);
     try {
-      await login(identifier.trim(), password);
+      const signedIn = await login(identifier.trim(), password);
+      showToast({ message: `Welcome back, ${signedIn.name}!` });
       navigate(redirect, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
