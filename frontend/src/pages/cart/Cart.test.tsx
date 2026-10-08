@@ -3,10 +3,15 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import Cart from "./Cart";
-import { ME_QUERY } from "../../queries/Queries";
+import { ME_QUERY, PRODUCTS_QUERY } from "../../queries/Queries";
 import { CHECKOUT_MUTATION } from "../../queries/Mutations";
 import { CartItem, User } from "../../types/Types";
-import { makeUser, renderWithProviders, withTypename } from "../../test/utils";
+import {
+  makeProduct,
+  makeUser,
+  renderWithProviders,
+  withTypename,
+} from "../../test/utils";
 
 const cartItem: CartItem = {
   productId: "64b000000000000000000001",
@@ -25,6 +30,21 @@ const meMock = (user: User) => ({
 
 const signIn = () => window.localStorage.setItem("game-store:token", "token");
 
+// The cart re-checks its lines against the live catalog.
+const catalogMock = (overrides = {}) => ({
+  request: { query: PRODUCTS_QUERY, variables: {} },
+  result: {
+    data: {
+      products: [
+        withTypename(
+          "Product",
+          makeProduct({ _id: cartItem.productId, ...overrides })
+        ),
+      ],
+    },
+  },
+});
+
 describe("Cart page", () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -32,7 +52,7 @@ describe("Cart page", () => {
   });
 
   it("lists items with totals and asks signed-out visitors to sign in", () => {
-    renderWithProviders(<Cart />, { route: "/cart" });
+    renderWithProviders(<Cart />, { route: "/cart", mocks: [catalogMock()] });
 
     expect(screen.getByText("2 items")).toBeInTheDocument();
     expect(screen.getAllByText("₦118,000").length).toBeGreaterThan(0);
@@ -45,7 +65,7 @@ describe("Cart page", () => {
     signIn();
     renderWithProviders(<Cart />, {
       route: "/cart",
-      mocks: [meMock(makeUser({ balance: 100000 }))],
+      mocks: [meMock(makeUser({ balance: 100000 })), catalogMock()],
     });
 
     expect(await screen.findByText(/₦18,000 short/)).toBeInTheDocument();
@@ -61,6 +81,7 @@ describe("Cart page", () => {
       route: "/cart",
       mocks: [
         meMock(makeUser()),
+        catalogMock(),
         {
           request: {
             query: CHECKOUT_MUTATION,
@@ -95,5 +116,17 @@ describe("Cart page", () => {
     await waitFor(() =>
       expect(window.localStorage.getItem("game-store:cart")).toBe("[]")
     );
+  });
+
+  it("corrects the cart when the catalog changed since items were added", async () => {
+    renderWithProviders(<Cart />, {
+      route: "/cart",
+      mocks: [catalogMock({ price: 61000, stock: 1 })],
+    });
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Only 1 of Logitech G305 left, so we updated the quantity. Logitech G305 now costs ₦61,000."
+    );
+    expect(screen.getByText("1 item")).toBeInTheDocument();
   });
 });

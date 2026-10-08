@@ -280,7 +280,7 @@ const ProductDetail = () => {
           <PanelTitle id="specs-title">Specifications</PanelTitle>
           <Specs>
             {product.specs.map((spec) => (
-              <React.Fragment key={spec.label}>
+              <React.Fragment key={`${spec.label}:${spec.value}`}>
                 <dt>{spec.label}</dt>
                 <dd>{spec.value}</dd>
               </React.Fragment>

@@ -5,9 +5,11 @@ import { IoClose } from "react-icons/io5";
 import { BsBag } from "react-icons/bs";
 
 import { maxQuantityFor, useCart } from "../../context/CartContext";
+import useCartSync from "../../hooks/useCartSync";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import { colors, radii } from "../../styles/theme";
 import { Button, ButtonLink } from "../ui/Button";
+import { Alert } from "../ui/Form";
 import QuantityStepper from "../quantityStepper/QuantityStepper";
 
 const Container = styled.aside`
@@ -59,6 +61,11 @@ const CloseButton = styled.button`
   &:hover {
     color: #fff;
   }
+`;
+
+const DrawerNotice = styled(Alert)`
+  margin: 1rem 1.5rem 0;
+  font-size: 0.875rem;
 `;
 
 const Items = styled.ul`
@@ -157,6 +164,7 @@ const CartBox = () => {
     isOpen,
     closeCart,
   } = useCart();
+  const { notice } = useCartSync(isOpen);
 
   if (!isOpen) return null;
 
@@ -169,6 +177,11 @@ const CartBox = () => {
         </CloseButton>
       </Header>
 
+      {notice && (
+        <DrawerNotice $tone="info" role="status">
+          {notice}
+        </DrawerNotice>
+      )}
       {items.length === 0 ? (
         <Empty>
           <BsBag aria-hidden />

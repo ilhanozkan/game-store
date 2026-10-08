@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useMutation } from "@apollo/client";
+import { Reference, useMutation } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
@@ -13,10 +13,7 @@ const useFavorite = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [mutate] = useMutation(TOGGLE_FAVORITE_MUTATION, {
-    // Keeps the favorites page in sync when it is on screen.
-    refetchQueries: ["getFavorites"],
-  });
+  const [mutate] = useMutation(TOGGLE_FAVORITE_MUTATION);
 
   const isFavorite = useCallback(
     (productId: string) => Boolean(user?.favorites.includes(productId)),
@@ -43,6 +40,23 @@ const useFavorite = () => {
         variables: { productId },
         optimisticResponse: {
           toggleFavorite: { __typename: "User", _id: user._id, favorites },
+        },
+        // Keep the cached favorites list (shown on the favorites page) in
+        // step: drop removed products right away, and refetch it after an
+        // addition.
+        update: (cache) => {
+          const id = cache.identify({ __typename: "User", _id: user._id });
+          if (adding) {
+            cache.evict({ id, fieldName: "favoriteProducts" });
+            return;
+          }
+          cache.modify({
+            id,
+            fields: {
+              favoriteProducts: (refs: readonly Reference[], { readField }) =>
+                refs.filter((ref) => readField("_id", ref) !== productId),
+            },
+          });
         },
       });
       return adding;

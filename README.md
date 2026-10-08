@@ -144,7 +144,7 @@ Other useful scripts:
 
 - **Catalog**: browse all products, categories with product counts, product pages with specifications and related products, and fuzzy search.
 - **Accounts**: register and sign in; sessions persist across reloads and expire safely.
-- **Cart and checkout**: the cart is saved in the browser, respects available stock, and checks out against the store balance.
+- **Cart and checkout**: the cart is saved in the browser and synced across tabs, re-checked against live stock and prices when you open it, and checks out against the store balance.
 - **Favorites**: save products with the heart button; favorites follow your account.
 - **Balance**: top up demo store credit and review every top-up and purchase.
 - **Profile**: edit your details and review your order history.

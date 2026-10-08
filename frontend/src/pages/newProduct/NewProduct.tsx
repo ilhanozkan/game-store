@@ -85,7 +85,14 @@ const NewProduct = () => {
   const [createProduct, { loading, error }] = useMutation<{
     createProduct: Product;
   }>(CREATE_PRODUCT_MUTATION, {
-    refetchQueries: ["getProducts", "getCategories"],
+    // Product lists and category counts are cached across pages; drop them
+    // so every page refetches and shows the new product.
+    update: (cache) => {
+      cache.evict({ id: "ROOT_QUERY", fieldName: "products" });
+      cache.evict({ id: "ROOT_QUERY", fieldName: "categories" });
+      cache.evict({ id: "ROOT_QUERY", fieldName: "category" });
+      cache.gc();
+    },
   });
 
   const [values, setValues] = useState({
