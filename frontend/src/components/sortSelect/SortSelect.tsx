@@ -30,7 +30,7 @@ const Wrapper = styled.label`
 `;
 
 const Select = styled.select`
-  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
   border: 1px solid ${colors.border};
   border-radius: ${radii.sm};
   background: ${colors.surface}
