@@ -1,63 +1,35 @@
-const express = require("express");
-const { json } = require("express");
-const bodyParser = require("body-parser");
-const app = express();
-const dotenv = require("dotenv").config();
-var cors = require("cors");
-
-// Apollo GraphQL server
-const { ApolloServer } = require("apollo-server");
-
-// Apollo GraphQL type definitions
-const typeDefs = require("./schema");
-
-// Apollo GraphQL resolvers
-const resolvers = require("./resolvers");
-
-// Apollo GraphQL datasources
-const ProductsAPI = require("./datasources/productsApi");
-const UserAPI = require("./datasources/userApi");
-
-// Routes
-const UsersRoute = require("./routes/users/users");
-const ProductsRoute = require("./routes/products/products.js");
-
-// MongoDB
-const { connectDatabase } = require("./db/connect");
+const config = require("./config");
+const { createApp } = require("./app");
+const { connectDatabase, disconnectDatabase } = require("./db/connect");
 const { seedDatabase } = require("./db/seed");
 
-app.use(json());
-app.use(cors());
-app.use("/products", ProductsRoute);
-app.use("/users", UsersRoute);
-
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  dataSources: () => {
-    return { productsAPI: new ProductsAPI(), userAPI: new UserAPI() };
-  },
-});
-
-connectDatabase()
-  .then(async ({ inMemory }) => {
-    if (inMemory) {
-      await seedDatabase();
-      console.warn(
-        "MONGO_URI is not set: using a temporary in-memory MongoDB seeded with demo data."
-      );
-    }
-
-    app.listen(process.env.PORT || "8000", (err) =>
-      console.log(`backend is running on port ${process.env.PORT || 8000}`)
+const start = async () => {
+  const { inMemory } = await connectDatabase(config.mongoUri);
+  if (inMemory) {
+    await seedDatabase();
+    console.warn(
+      "MONGO_URI is not set: using a temporary in-memory MongoDB seeded with demo data."
     );
+  }
 
-    server.listen(process.env.APOLLO_PORT || 4000).then(() => {
-      console.log(`
-        🚀  Server is running!
-        🔉  Listening on port ${process.env.APOLLO_PORT || 4000}
-        📭  Query at http://localhost:${process.env.APOLLO_PORT || 4000}
-      `);
-    });
-  })
-  .catch((e) => console.log(e));
+  const { app, apollo } = await createApp();
+  const server = app.listen(config.port, () => {
+    console.log(`🚀 API ready on http://localhost:${config.port}`);
+    console.log(`   GraphQL: http://localhost:${config.port}/graphql`);
+    console.log(`   REST:    http://localhost:${config.port}/api`);
+  });
+
+  const shutdown = async () => {
+    server.close();
+    await apollo.stop();
+    await disconnectDatabase();
+    process.exit(0);
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+};
+
+start().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

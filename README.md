@@ -39,11 +39,22 @@ Create a file named `.env` under the `backend` folder.
 Example **.env** file (see [`backend/.env.example`](backend/.env.example)):
 
 ```bash
+# Optional during development (an in-memory database is used when unset)
 MONGO_URI=mongodb://127.0.0.1:27017/game-store
 PORT=5000
-APOLLO_PORT=4000
-REST_API_URL=http://localhost:5000
+# Required in production
+JWT_SECRET=replace-with-a-long-random-string
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=http://localhost:3000
 ```
+
+| Variable         | Default                  | Description                                                         |
+| ---------------- | ------------------------ | ------------------------------------------------------------------- |
+| `MONGO_URI`      | _in-memory database_     | MongoDB connection string. Required when `NODE_ENV=production`.     |
+| `PORT`           | `5000`                   | Port for both the GraphQL (`/graphql`) and REST (`/api`) endpoints. |
+| `JWT_SECRET`     | _development-only value_ | Secret used to sign login tokens. Required in production.           |
+| `JWT_EXPIRES_IN` | `7d`                     | How long login tokens stay valid.                                   |
+| `CORS_ORIGIN`    | `*`                      | Comma-separated origins allowed to call the API.                    |
 
 2 - Install dependencies
 
@@ -71,11 +82,16 @@ You can skip this step when running without `MONGO_URI`, because the in-memory d
 
 4 - Start the backend
 
-Start the backend in development.
+Start the backend in development (restarts on file changes):
 
 ```bash
-npm start
+npm run dev
 ```
+
+Use `npm start` to run it without watching. The API is then available at:
+
+- GraphQL: `http://localhost:5000/graphql` (open it in a browser for Apollo Sandbox)
+- REST: `http://localhost:5000/api`
 
 Run the backend test suite with `npm test`.
 
@@ -88,8 +104,7 @@ Create a file named `.env.local` under the `frontend` folder.
 Example **.env.local** file:
 
 ```bash
-REACT_APP_API_URL=http://localhost:4000
-REACT_APP_REST_API_URL=http://localhost:5000
+REACT_APP_API_URL=http://localhost:5000/graphql
 ```
 
 2 - Install dependencies
@@ -186,6 +201,41 @@ erDiagram
         ObjectId order FK
     }
 ```
+
+## API
+
+The backend serves GraphQL and a small read-mostly REST API from the same port. Authenticated requests send `Authorization: Bearer <token>`, where the token comes from the `login` or `register` mutation.
+
+### GraphQL (`/graphql`)
+
+| Operation                                       | Auth     | Description                                                     |
+| ----------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `products(category, search, sort, inStockOnly)` | –        | Lists products. `category` accepts a slug or a name.            |
+| `product(id)`                                   | –        | Finds a product by ID or slug.                                  |
+| `categories`, `category(slug)`                  | –        | Categories with product counts.                                 |
+| `me`                                            | optional | The signed-in user, or `null`.                                  |
+| `myOrders`, `myTransactions`                    | user     | Order history and balance ledger, newest first.                 |
+| `register(input)`, `login(input)`               | –        | Return `{ token, user }`. `login` accepts a username or email.  |
+| `updateProfile(input)`                          | user     | Updates name, email or avatar URL.                              |
+| `toggleFavorite(productId)`                     | user     | Adds or removes a favorite.                                     |
+| `topUpBalance(amount)`                          | user     | Adds demo store credit (whole Naira).                           |
+| `checkout(items)`                               | user     | Pays for the cart from the balance, reserving stock atomically. |
+| `createProduct(input)`                          | admin    | Adds a product to the catalog.                                  |
+
+Errors carry an `extensions.code`: `BAD_USER_INPUT`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `INSUFFICIENT_BALANCE` or `INTERNAL_SERVER_ERROR`.
+
+### REST (`/api`)
+
+| Method & path                      | Auth  | Description                                                                    |
+| ---------------------------------- | ----- | ------------------------------------------------------------------------------ |
+| `GET /api/health`                  | –     | Service and database status.                                                   |
+| `GET /api/categories`              | –     | All categories in navigation order.                                            |
+| `GET /api/products`                | –     | Query params: `category`, `search`, `sort` (e.g. `price_asc`), `inStock=true`. |
+| `GET /api/products/category/:name` | –     | Products in a category (slug or name).                                         |
+| `GET /api/products/:idOrSlug`      | –     | A single product, or `404`.                                                    |
+| `POST /api/products`               | admin | Creates a product.                                                             |
+
+REST errors are returned as `{ "error": { "message", "code" } }` with a matching HTTP status.
 
 ## License
 
