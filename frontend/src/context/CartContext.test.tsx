@@ -4,7 +4,9 @@ import { act, renderHook } from "@testing-library/react";
 import {
   CartProvider,
   cartReducer,
+  loadCart,
   MAX_PER_PRODUCT,
+  reconcileCart,
   useCart,
 } from "./CartContext";
 import { makeProduct } from "../test/utils";
@@ -62,6 +64,61 @@ describe("cartReducer", () => {
   });
 });
 
+describe("reconcileCart", () => {
+  const product = makeProduct({ _id: "p1", name: "Product 1", price: 1000 });
+
+  it("leaves an up-to-date cart untouched", () => {
+    const items = [item({ stock: product.stock })];
+    const result = reconcileCart(items, [product]);
+    expect(result.items).toBe(items);
+    expect(result.changes).toEqual([]);
+  });
+
+  it("removes vanished or sold-out products and explains why", () => {
+    const result = reconcileCart(
+      [item(), item({ productId: "p2", name: "Gone" })],
+      [{ ...product, stock: 0 }]
+    );
+    expect(result.items).toEqual([]);
+    expect(result.changes).toEqual([
+      "Product 1 sold out and was removed.",
+      "Gone is no longer available and was removed.",
+    ]);
+  });
+
+  it("caps quantities at the stock left and refreshes prices", () => {
+    const result = reconcileCart(
+      [item({ quantity: 5 })],
+      [{ ...product, stock: 2, price: 1500 }]
+    );
+    expect(result.items[0]).toMatchObject({
+      quantity: 2,
+      price: 1500,
+      stock: 2,
+    });
+    expect(result.changes).toEqual([
+      "Only 2 of Product 1 left, so we updated the quantity.",
+      "Product 1 now costs ₦1,500.",
+    ]);
+  });
+});
+
+describe("loadCart", () => {
+  beforeEach(() => window.localStorage.clear());
+
+  it("drops duplicates and lines without a slug, and caps quantities", () => {
+    window.localStorage.setItem(
+      "game-store:cart",
+      JSON.stringify([
+        item({ quantity: 9, stock: 3 }),
+        item({ quantity: 1 }),
+        { ...item({ productId: "p2" }), slug: undefined },
+      ])
+    );
+    expect(loadCart()).toEqual([item({ quantity: 3, stock: 3 })]);
+  });
+});
+
 describe("CartProvider", () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <CartProvider>{children}</CartProvider>
@@ -93,6 +150,20 @@ describe("CartProvider", () => {
 
     const second = renderHook(() => useCart(), { wrapper });
     expect(second.result.current.itemCount).toBe(2);
+  });
+
+  it("follows changes made in other tabs", () => {
+    const { result } = renderHook(() => useCart(), { wrapper });
+    act(() => result.current.addItem(makeProduct(), 1));
+
+    window.localStorage.setItem("game-store:cart", "[]");
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: "game-store:cart" })
+      );
+    });
+
+    expect(result.current.items).toEqual([]);
   });
 
   it("ignores corrupted stored data", () => {

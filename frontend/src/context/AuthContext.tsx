@@ -13,6 +13,7 @@ import {
   useQuery,
 } from "@apollo/client";
 
+import { setUnauthenticatedHandler } from "../apollo/client";
 import { ME_QUERY } from "../queries/Queries";
 import { LOGIN_MUTATION, REGISTER_MUTATION } from "../queries/Mutations";
 import { MeData, User } from "../types/Types";
@@ -68,6 +69,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (token && !loading && data && data.me === null) endSession();
   }, [token, loading, data, endSession]);
+
+  // ...and protected operations answer UNAUTHENTICATED once a token expires
+  // while the app is open.
+  useEffect(() => {
+    setUnauthenticatedHandler(endSession);
+    return () => setUnauthenticatedHandler(null);
+  }, [endSession]);
 
   const startSession = useCallback(
     ({ token: newToken, user }: AuthPayload) => {

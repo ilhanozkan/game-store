@@ -22,6 +22,11 @@ const typeDefs = `#graphql
     PURCHASE
   }
 
+  enum OrderStatus {
+    PAID
+    CANCELLED
+  }
+
   type ProductSpec {
     label: String!
     value: String!
@@ -89,7 +94,7 @@ const typeDefs = `#graphql
     items: [OrderItem!]!
     itemCount: Int!
     total: Float!
-    status: String!
+    status: OrderStatus!
     createdAt: DateTime!
   }
 

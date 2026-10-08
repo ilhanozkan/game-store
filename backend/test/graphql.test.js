@@ -1,7 +1,10 @@
-const { describe, it } = require("node:test");
+const { describe, it, mock } = require("node:test");
 const assert = require("node:assert/strict");
 
+const jwt = require("jsonwebtoken");
+
 const { useTestApp, errorCode } = require("./helpers/app");
+const config = require("../config");
 const { Product, User, Order, Transaction } = require("../models");
 
 const api = useTestApp();
@@ -62,6 +65,14 @@ describe("catalog queries", () => {
       `{ products(category: "toasters") { _id } }`
     );
     assert.deepEqual(data.products, []);
+  });
+
+  it("treats an explicit null sort as the default order", async () => {
+    const { data, errors } = await api.graphql(
+      `{ products(sort: null) { slug } }`
+    );
+    assert.equal(errors, undefined);
+    assert.equal(data.products[0].slug, "oculus-quest-2");
   });
 
   it("supports search and sorting", async () => {
@@ -178,6 +189,24 @@ describe("authentication", () => {
   it("treats missing or invalid tokens as signed out", async () => {
     assert.equal((await api.graphql(ME)).data.me, null);
     assert.equal((await api.graphql(ME, {}, "not-a-jwt")).data.me, null);
+
+    const fola = await User.findOne({ username: "fola" });
+    const unsigned = jwt.sign({ sub: String(fola._id) }, null, {
+      algorithm: "none",
+    });
+    const wrongKey = jwt.sign({ sub: String(fola._id) }, "x".repeat(40));
+    assert.equal((await api.graphql(ME, {}, unsigned)).data.me, null);
+    assert.equal((await api.graphql(ME, {}, wrongKey)).data.me, null);
+  });
+
+  it("accepts the Bearer scheme in any case", async () => {
+    const token = await api.loginAsCustomer();
+    const res = await api
+      .request()
+      .post("/graphql")
+      .set("Authorization", `bearer ${token}`)
+      .send({ query: ME });
+    assert.equal(res.body.data.me.username, "fola");
   });
 
   it("never exposes password hashes", async () => {
@@ -223,6 +252,22 @@ describe("account mutations", () => {
     assert.ok(!removed.data.toggleFavorite.favorites.includes(id));
   });
 
+  it("resolves isFavorite from the updated user in the same response", async () => {
+    const token = await api.loginAsCustomer();
+    const id = await productId("hollow-keep");
+    const { data } = await api.graphql(
+      `mutation ($id: ID!) {
+        toggleFavorite(productId: $id) { favoriteProducts { slug isFavorite } }
+      }`,
+      { id },
+      token
+    );
+    const added = data.toggleFavorite.favoriteProducts.find(
+      (p) => p.slug === "hollow-keep"
+    );
+    assert.equal(added.isFavorite, true);
+  });
+
   it("reports unknown products when toggling favorites", async () => {
     const token = await api.loginAsCustomer();
     const res = await api.graphql(
@@ -253,6 +298,40 @@ describe("account mutations", () => {
       balanceAfter: 525000,
       description: "Wallet top-up",
     });
+  });
+
+  it("keeps the balance and ledger in step if the ledger write fails", async () => {
+    const token = await api.loginAsCustomer();
+    mock.method(console, "error", () => {});
+    mock.method(Transaction, "create", async () => {
+      throw new Error("ledger unavailable");
+    });
+    try {
+      const res = await api.graphql(
+        `mutation { topUpBalance(amount: 1000) { balance } }`,
+        {},
+        token
+      );
+      assert.equal(errorCode(res), "INTERNAL_SERVER_ERROR");
+    } finally {
+      mock.restoreAll();
+    }
+    assert.equal((await User.findOne({ username: "fola" })).balance, 500000);
+  });
+
+  it("refuses top-ups when the demo wallet is disabled", async () => {
+    const token = await api.loginAsCustomer();
+    config.demoWallet = false;
+    try {
+      const res = await api.graphql(
+        `mutation { topUpBalance(amount: 1000) { balance } }`,
+        {},
+        token
+      );
+      assert.equal(errorCode(res), "FORBIDDEN");
+    } finally {
+      config.demoWallet = true;
+    }
   });
 
   it("rejects invalid top-up amounts", async () => {
@@ -403,15 +482,71 @@ describe("checkout", () => {
 
     const pc = await productId("pc-builder-tower");
     const items = [{ productId: pc, quantity: 2 }];
-    const [first, second] = await Promise.all([
-      api.graphql(CHECKOUT, { items }, await api.loginAsCustomer()),
-      api.graphql(CHECKOUT, { items }, await api.loginAsAdmin()),
+    // Sign in first so both checkouts really run at the same time and the
+    // loser is stopped by the atomic stock update, not the early check.
+    const customerToken = await api.loginAsCustomer();
+    const adminToken = await api.loginAsAdmin();
+    const results = await Promise.all([
+      api.graphql(CHECKOUT, { items }, customerToken),
+      api.graphql(CHECKOUT, { items }, adminToken),
     ]);
 
-    const succeeded = [first, second].filter((res) => !res.errors);
-    assert.equal(succeeded.length, 1);
+    const failed = results.filter((res) => res.errors);
+    assert.equal(failed.length, 1);
+    assert.match(failed[0].errors[0].message, /sold out|out of stock/);
     assert.equal((await Product.findById(pc)).stock, 0);
     assert.equal(await Order.countDocuments(), 1);
+  });
+
+  it("releases reserved stock when the balance runs out mid-checkout", async () => {
+    // Two orders the balance can only cover one of, placed simultaneously.
+    const token = await api.loginAsCustomer();
+    const vr = await productId("oculus-quest-2");
+    const items = [{ productId: vr, quantity: 1 }];
+
+    const results = await Promise.all([
+      api.graphql(CHECKOUT, { items }, token),
+      api.graphql(CHECKOUT, { items }, token),
+    ]);
+
+    assert.equal(results.filter((res) => res.errors).length, 1);
+    assert.equal((await Product.findById(vr)).stock, 9);
+    assert.equal((await User.findOne({ username: "fola" })).balance, 51000);
+    assert.equal(await Order.countDocuments(), 1);
+  });
+
+  it("undoes the order, charge and stock if recording it fails", async () => {
+    const token = await api.loginAsCustomer();
+    const mouse = await productId("logitech-g305");
+    mock.method(console, "error", () => {});
+    mock.method(Transaction, "create", async () => {
+      throw new Error("ledger unavailable");
+    });
+
+    try {
+      const res = await api.graphql(
+        CHECKOUT,
+        { items: [{ productId: mouse, quantity: 1 }] },
+        token
+      );
+      assert.equal(errorCode(res), "INTERNAL_SERVER_ERROR");
+    } finally {
+      mock.restoreAll();
+    }
+
+    assert.equal(await Order.countDocuments(), 0);
+    assert.equal((await User.findOne({ username: "fola" })).balance, 500000);
+    assert.equal((await Product.findById(mouse)).stock, 18);
+  });
+
+  it("reports order status as an enum", async () => {
+    const token = await api.loginAsCustomer();
+    const { data } = await api.graphql(
+      `mutation ($items: [CartItemInput!]!) { checkout(items: $items) { status } }`,
+      { items: [{ productId: await productId("neon-drift"), quantity: 1 }] },
+      token
+    );
+    assert.equal(data.checkout.status, "PAID");
   });
 });
 

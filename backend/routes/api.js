@@ -10,7 +10,10 @@ const router = express.Router();
 
 router.get("/health", (_req, res) => {
   const database = mongoose.connection.readyState === 1 ? "up" : "down";
-  res.status(database === "up" ? 200 : 503).json({ status: "ok", database });
+  const healthy = database === "up";
+  res
+    .status(healthy ? 200 : 503)
+    .json({ status: healthy ? "ok" : "degraded", database });
 });
 
 router.get("/categories", async (_req, res) => {

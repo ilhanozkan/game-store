@@ -19,6 +19,20 @@ describe("safeRedirect", () => {
     expect(safeRedirect("/search?sr=mouse")).toBe("/search?sr=mouse");
   });
 
+  it("keeps query strings and hashes", () => {
+    expect(safeRedirect("/cart?step=1#summary")).toBe("/cart?step=1#summary");
+  });
+
+  it("rejects tricks browsers treat as other origins", () => {
+    expect(safeRedirect("/\\evil.example")).toBe("/");
+    expect(safeRedirect("/\t/evil.example")).toBe("/");
+  });
+
+  it("never sends people back to the sign-in pages", () => {
+    expect(safeRedirect("/login")).toBe("/");
+    expect(safeRedirect("/register?redirect=%2Fcart")).toBe("/");
+  });
+
   it("falls back for missing or external targets", () => {
     expect(safeRedirect(null)).toBe("/");
     expect(safeRedirect("https://evil.example")).toBe("/");

@@ -5,10 +5,12 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from "react";
 
 import { CartItem, Product } from "../types/Types";
+import formatCurrency from "../utils/CurrencyFormatter";
 import { readStorage, writeStorage } from "../utils/storage";
 
 const STORAGE_KEY = "game-store:cart";
@@ -22,6 +24,7 @@ type Action =
   | { type: "add"; item: Omit<CartItem, "quantity">; quantity: number }
   | { type: "update"; productId: string; quantity: number }
   | { type: "remove"; productId: string }
+  | { type: "replace"; items: CartItem[] }
   | { type: "clear" };
 
 export const cartReducer = (state: CartItem[], action: Action): CartItem[] => {
@@ -60,6 +63,8 @@ export const cartReducer = (state: CartItem[], action: Action): CartItem[] => {
       );
     case "remove":
       return state.filter((i) => i.productId !== action.productId);
+    case "replace":
+      return action.items;
     case "clear":
       return [];
     default:
@@ -73,6 +78,7 @@ const isCartItem = (value: unknown): value is CartItem => {
     typeof item === "object" &&
     item !== null &&
     typeof item.productId === "string" &&
+    typeof item.slug === "string" &&
     typeof item.name === "string" &&
     typeof item.price === "number" &&
     typeof item.stock === "number" &&
@@ -81,13 +87,75 @@ const isCartItem = (value: unknown): value is CartItem => {
   );
 };
 
-const loadCart = (): CartItem[] => {
+// Reads the saved cart, dropping malformed and duplicate lines and keeping
+// quantities within the limits the reducer enforces.
+export const loadCart = (): CartItem[] => {
   try {
     const parsed = JSON.parse(readStorage(STORAGE_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed.filter(isCartItem) : [];
+    if (!Array.isArray(parsed)) return [];
+    const seen = new Set<string>();
+    return parsed.filter(isCartItem).flatMap((item) => {
+      const quantity = Math.min(item.quantity, maxQuantityFor(item.stock));
+      if (seen.has(item.productId) || quantity <= 0) return [];
+      seen.add(item.productId);
+      return [{ ...item, quantity }];
+    });
   } catch {
     return [];
   }
+};
+
+/**
+ * Compares saved cart lines with the current catalog. Returns the corrected
+ * lines plus a message per change: products that disappeared or sold out are
+ * removed, quantities shrink to the stock left, and prices are refreshed.
+ */
+export const reconcileCart = (
+  items: CartItem[],
+  products: Product[]
+): { items: CartItem[]; changes: string[] } => {
+  const byId = new Map(products.map((p) => [p._id, p]));
+  const changes: string[] = [];
+
+  const next = items.flatMap((item) => {
+    const product = byId.get(item.productId);
+    if (!product) {
+      changes.push(`${item.name} is no longer available and was removed.`);
+      return [];
+    }
+    const quantity = Math.min(item.quantity, maxQuantityFor(product.stock));
+    if (quantity <= 0) {
+      changes.push(`${product.name} sold out and was removed.`);
+      return [];
+    }
+    if (quantity < item.quantity) {
+      changes.push(
+        `Only ${quantity} of ${product.name} left, so we updated the quantity.`
+      );
+    }
+    if (product.price !== item.price) {
+      changes.push(
+        `${product.name} now costs ${formatCurrency(product.price)}.`
+      );
+    }
+    return [
+      {
+        ...item,
+        name: product.name,
+        slug: product.slug,
+        img: product.img,
+        price: product.price,
+        stock: product.stock,
+        quantity,
+      },
+    ];
+  });
+
+  const unchanged =
+    changes.length === 0 &&
+    next.length === items.length &&
+    next.every((line, i) => line.stock === items[i].stock);
+  return { items: unchanged ? items : next, changes };
 };
 
 type CartContextValue = {
@@ -99,6 +167,8 @@ type CartContextValue = {
   updateQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   clearCart: () => void;
+  // Applies the latest catalog to the cart; returns what changed.
+  syncWithCatalog: (products: Product[]) => string[];
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -110,9 +180,31 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, dispatch] = useReducer(cartReducer, undefined, loadCart);
   const [isOpen, setIsOpen] = useState(false);
 
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+
   useEffect(() => {
     writeStorage(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
+
+  // Keep carts open in other tabs in sync (e.g. after checking out in one).
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY) {
+        dispatch({ type: "replace", items: loadCart() });
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const syncWithCatalog = useCallback((products: Product[]) => {
+    const result = reconcileCart(itemsRef.current, products);
+    if (result.items !== itemsRef.current) {
+      dispatch({ type: "replace", items: result.items });
+    }
+    return result.changes;
+  }, []);
 
   const addItem = useCallback((product: Product, quantity = 1) => {
     dispatch({
@@ -153,6 +245,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       updateQuantity,
       removeItem,
       clearCart,
+      syncWithCatalog,
       isOpen,
       openCart,
       closeCart,
@@ -163,6 +256,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     updateQuantity,
     removeItem,
     clearCart,
+    syncWithCatalog,
     isOpen,
     openCart,
     closeCart,

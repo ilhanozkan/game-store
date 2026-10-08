@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useMutation, useQuery } from "@apollo/client";
 import { MdOutlineReceiptLong } from "react-icons/md";
 
 import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 import { MY_ORDERS_QUERY } from "../../queries/Queries";
 import { UPDATE_PROFILE_MUTATION } from "../../queries/Mutations";
 import { OrdersData } from "../../types/Types";
@@ -267,11 +268,16 @@ const Profile = () => {
   usePageTitle("Profile");
   const { user, logout } = useAuth();
   const showToast = useToast();
+  const { clearCart } = useCart();
+  const navigate = useNavigate();
   const { data } = useQuery<OrdersData>(MY_ORDERS_QUERY);
   if (!user) return null;
 
+  // The cart lives in this browser, so empty it on a shared device.
   const handleLogout = () => {
     logout();
+    clearCart();
+    navigate("/");
     showToast({ message: "You've signed out. See you soon!", tone: "info" });
   };
 

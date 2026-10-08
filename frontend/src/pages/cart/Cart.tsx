@@ -8,6 +8,7 @@ import { FiTrash2 } from "react-icons/fi";
 import { maxQuantityFor, useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { CHECKOUT_MUTATION } from "../../queries/Mutations";
+import useCartSync from "../../hooks/useCartSync";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import { getErrorCode, getErrorMessage } from "../../utils/apolloErrors";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -136,6 +137,10 @@ const Divider = styled.hr`
   border-top: 1px solid ${colors.border};
 `;
 
+const CartNotice = styled(Alert)`
+  margin-bottom: 1.5rem;
+`;
+
 const Stack = styled.div`
   display: flex;
   flex-direction: column;
@@ -154,6 +159,7 @@ const Cart = () => {
     useCart();
   const { user } = useAuth();
   usePageTitle("Cart");
+  const { notice, clearNotice, recheck } = useCartSync(true);
   const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
   const [checkout, { loading, error, reset }] = useMutation<{
     checkout: PlacedOrder;
@@ -188,10 +194,13 @@ const Cart = () => {
       });
       if (data) {
         setPlacedOrder(data.checkout);
+        clearNotice();
         clearCart();
       }
-    } catch {
-      // Shown through `error` below.
+    } catch (err) {
+      // Shown through `error` below. Stock or prices may have changed, so
+      // re-check the cart against the catalog.
+      if (getErrorCode(err) === "BAD_USER_INPUT") recheck();
     }
   };
 
@@ -235,6 +244,11 @@ const Cart = () => {
         title="Your cart"
         subtitle={`${itemCount} item${itemCount === 1 ? "" : "s"}`}
       />
+      {notice && (
+        <CartNotice $tone="info" role="status">
+          {notice}
+        </CartNotice>
+      )}
       <Layout>
         <Items aria-label="Items in your cart">
           {items.map((item) => (

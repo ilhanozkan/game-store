@@ -47,13 +47,24 @@ const releaseStock = (reserved) =>
     )
   );
 
+// Runs a compensating write, logging (not throwing) if it fails so the
+// remaining rollback steps still run and the original error is kept.
+const undo = async (step, action) => {
+  try {
+    await action();
+  } catch (error) {
+    console.error(`Checkout rollback step "${step}" failed:`, error);
+  }
+};
+
 /**
  * Places an order paid from the user's balance.
  *
  * Stock and balance are changed with conditional atomic updates (so two
  * shoppers can never buy the same last item) and rolled back if a later step
  * fails. This works on standalone MongoDB servers, which do not support
- * multi-document transactions.
+ * multi-document transactions. A process crash mid-checkout can still leave
+ * reserved stock behind; a replica set with transactions would close that.
  */
 const checkout = async (user, items) => {
   const quantities = normaliseItems(items);
@@ -100,7 +111,7 @@ const checkout = async (user, items) => {
       { $inc: { stock: -line.quantity } }
     );
     if (modifiedCount === 0) {
-      await releaseStock(reserved);
+      await undo("release stock", () => releaseStock(reserved));
       throw new ValidationError(`${line.name} just sold out`);
     }
     reserved.push(line);
@@ -109,18 +120,19 @@ const checkout = async (user, items) => {
   const charged = await User.findOneAndUpdate(
     { _id: user._id, balance: { $gte: total } },
     { $inc: { balance: -total } },
-    { new: true }
+    { returnDocument: "after" }
   );
   if (!charged) {
-    await releaseStock(reserved);
+    await undo("release stock", () => releaseStock(reserved));
     throw new ValidationError(
       "Your balance is too low for this order",
       "INSUFFICIENT_BALANCE"
     );
   }
 
+  let order;
   try {
-    const order = await Order.create({ user: user._id, items: lines, total });
+    order = await Order.create({ user: user._id, items: lines, total });
     await Transaction.create({
       user: user._id,
       type: "purchase",
@@ -131,8 +143,12 @@ const checkout = async (user, items) => {
     });
     return order.toObject();
   } catch (error) {
-    await User.updateOne({ _id: user._id }, { $inc: { balance: total } });
-    await releaseStock(reserved);
+    // Never leave a paid order behind for a purchase that was refunded.
+    if (order) await undo("delete order", () => order.deleteOne());
+    await undo("refund balance", () =>
+      User.updateOne({ _id: user._id }, { $inc: { balance: total } })
+    );
+    await undo("release stock", () => releaseStock(reserved));
     throw error;
   }
 };

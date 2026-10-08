@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const { slugify, SLUG_PATTERN } = require("../utils/slugify");
+const { wholeNaira, imageUrl } = require("../utils/validators");
 
 const { Schema } = mongoose;
 
@@ -34,7 +35,7 @@ const productSchema = new Schema(
       index: true,
     },
     // Prices are stored in whole Naira (NGN).
-    price: { type: Number, required: true, min: 0 },
+    price: { type: Number, required: true, min: 0, validate: wholeNaira },
     stock: {
       type: Number,
       required: true,
@@ -45,7 +46,7 @@ const productSchema = new Schema(
         message: "Stock must be a whole number",
       },
     },
-    img: { type: String, trim: true, default: "" },
+    img: { type: String, trim: true, default: "", validate: imageUrl },
     description: { type: String, trim: true, maxlength: 2000, default: "" },
     rating: { type: Number, min: 0, max: 5, default: 0 },
     reviewCount: { type: Number, min: 0, default: 0 },

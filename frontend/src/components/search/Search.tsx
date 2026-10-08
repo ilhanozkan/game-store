@@ -50,10 +50,12 @@ const Search = () => {
     onSearchPage ? searchParams.get(SEARCH_PARAM) || "" : ""
   );
 
-  // Clear the box when leaving the search page.
+  // Follow the URL: clear the box when leaving the search page and pick up
+  // the term on back/forward navigation or links to /search.
+  const urlTerm = onSearchPage ? searchParams.get(SEARCH_PARAM) || "" : "";
   useEffect(() => {
-    if (!onSearchPage) setInputValue("");
-  }, [onSearchPage]);
+    setInputValue(urlTerm);
+  }, [urlTerm]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

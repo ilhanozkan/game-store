@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { colors } from "../../styles/theme";
@@ -42,6 +42,9 @@ type AvatarProps = {
 // Shows the user's photo, falling back to their initials.
 const Avatar = ({ name, src, size = 2.75 }: AvatarProps) => {
   const [failed, setFailed] = useState(false);
+
+  // Give a new image URL a fresh chance to load.
+  useEffect(() => setFailed(false), [src]);
 
   if (src && !failed) {
     return (
