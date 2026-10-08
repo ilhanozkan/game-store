@@ -23,7 +23,8 @@ const UsersRoute = require("./routes/users/users");
 const ProductsRoute = require("./routes/products/products.js");
 
 // MongoDB
-const mongoose = require("mongoose");
+const { connectDatabase } = require("./db/connect");
+const { seedDatabase } = require("./db/seed");
 
 app.use(json());
 app.use(cors());
@@ -38,9 +39,15 @@ const server = new ApolloServer({
   },
 });
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
+connectDatabase()
+  .then(async ({ inMemory }) => {
+    if (inMemory) {
+      await seedDatabase();
+      console.warn(
+        "MONGO_URI is not set: using a temporary in-memory MongoDB seeded with demo data."
+      );
+    }
+
     app.listen(process.env.PORT || "8000", (err) =>
       console.log(`backend is running on port ${process.env.PORT || 8000}`)
     );
@@ -53,4 +60,7 @@ mongoose
       `);
     });
   })
-  .catch((e) => console.log(e));
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
