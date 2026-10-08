@@ -89,6 +89,32 @@ describe("Product", () => {
     await Product.create(validProduct());
     await assert.rejects(Product.create(validProduct()), /duplicate key/);
   });
+
+  it("only accepts whole, finite Naira prices", async () => {
+    await assert.rejects(
+      Product.create(validProduct({ price: 10.5 })),
+      /whole number of Naira/
+    );
+    await assert.rejects(
+      Product.create(validProduct({ price: Infinity })),
+      mongoose.Error.ValidationError
+    );
+  });
+
+  it("only accepts image paths or http(s) URLs", async () => {
+    await assert.rejects(
+      Product.create(validProduct({ img: "javascript:alert(1)" })),
+      /must be a path starting with \/ or an http\(s\) URL/
+    );
+    await assert.rejects(
+      Product.create(validProduct({ img: "//evil.example/x.png" })),
+      mongoose.Error.ValidationError
+    );
+    const product = await Product.create(
+      validProduct({ img: "https://cdn.example.com/mouse.png" })
+    );
+    assert.equal(product.img, "https://cdn.example.com/mouse.png");
+  });
 });
 
 describe("User", () => {
@@ -104,6 +130,28 @@ describe("User", () => {
     await assert.rejects(user.setPassword("short"), /at least 8/);
   });
 
+  it("rejects passwords bcrypt would silently truncate", async () => {
+    const user = new User(validUser());
+    await assert.rejects(user.setPassword("a".repeat(73)), /at most 72/);
+    // Multi-byte characters count by their UTF-8 size.
+    await assert.rejects(user.setPassword("é".repeat(37)), /at most 72/);
+    await user.setPassword("a".repeat(72));
+  });
+
+  it("validates emails in linear time", async () => {
+    const hostile = `a@${".".repeat(30000)}@`;
+    const started = Date.now();
+    await assert.rejects(
+      createUser({ email: hostile }),
+      mongoose.Error.ValidationError
+    );
+    assert.ok(Date.now() - started < 500, "email validation took too long");
+    await assert.rejects(
+      createUser({ email: "a@...." }),
+      /Email address is invalid/
+    );
+  });
+
   it("never selects or serialises the password hash by default", async () => {
     await createUser();
     const user = await User.findOne({ username: "ada" });
@@ -114,6 +162,7 @@ describe("User", () => {
     );
     assert.ok(withHash.passwordHash);
     assert.equal("passwordHash" in withHash.toJSON(), false);
+    assert.equal("passwordHash" in withHash.toObject(), false);
   });
 
   it("normalises email and username and applies defaults", async () => {

@@ -19,6 +19,8 @@ const createContext = async ({ req }) => {
 
   return {
     user: await getUserFromAuthHeader(req.headers.authorization),
+    // Client address (honours TRUST_PROXY), used for rate limiting.
+    clientId: req.ip,
     getCategories,
     getCategoryNames: once(
       async () => new Map((await getCategories()).map((c) => [c.slug, c.name]))

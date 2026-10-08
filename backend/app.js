@@ -1,8 +1,12 @@
+const http = require("http");
 const express = require("express");
 const cors = require("cors");
 const { GraphQLError } = require("graphql");
 const { ApolloServer } = require("@apollo/server");
 const { unwrapResolverError } = require("@apollo/server/errors");
+const {
+  ApolloServerPluginDrainHttpServer,
+} = require("@apollo/server/plugin/drainHttpServer");
 const { expressMiddleware } = require("@as-integrations/express5");
 
 const config = require("./config");
@@ -32,11 +36,14 @@ const formatError = (formattedError, error) => {
 
 /**
  * Builds the Express app: REST endpoints under /api and the GraphQL API at
- * /graphql, served from a single port.
+ * /graphql, served from a single port. Stopping Apollo also drains the HTTP
+ * server, letting in-flight requests (e.g. a checkout) finish.
  */
 const createApp = async () => {
   const app = express();
+  const httpServer = http.createServer(app);
   app.disable("x-powered-by");
+  app.set("trust proxy", config.trustProxy);
   app.use(cors({ origin: config.corsOrigin }));
   app.use(express.json({ limit: "100kb" }));
 
@@ -47,6 +54,9 @@ const createApp = async () => {
     resolvers,
     formatError,
     introspection: !config.isProduction,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    // index.js handles signals so shutdown runs once, in order.
+    stopOnTerminationSignals: false,
   });
   await apollo.start();
   app.use("/graphql", expressMiddleware(apollo, { context: createContext }));
@@ -54,7 +64,7 @@ const createApp = async () => {
   app.use(notFound);
   app.use(errorHandler);
 
-  return { app, apollo };
+  return { app, httpServer, apollo };
 };
 
 module.exports = { createApp };

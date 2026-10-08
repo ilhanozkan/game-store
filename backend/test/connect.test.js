@@ -8,13 +8,17 @@ describe("connectDatabase", () => {
   const originalEnv = process.env.NODE_ENV;
 
   afterEach(async () => {
-    process.env.NODE_ENV = originalEnv;
+    // Assigning undefined would store the string "undefined".
+    if (originalEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = originalEnv;
     await disconnectDatabase();
   });
 
-  it("refuses to start without MONGO_URI in production", async () => {
-    process.env.NODE_ENV = "production";
-    await assert.rejects(connectDatabase(""), /MONGO_URI must be set/);
+  it("refuses to start without MONGO_URI outside development", async () => {
+    for (const env of ["production", "staging"]) {
+      process.env.NODE_ENV = env;
+      await assert.rejects(connectDatabase(""), /MONGO_URI must be set/);
+    }
   });
 
   it("falls back to an in-memory database during development", async () => {

@@ -65,6 +65,14 @@ describe("REST API", () => {
     );
   });
 
+  it("rejects overly long search terms", async () => {
+    const res = await api
+      .request()
+      .get(`/api/products?search=${"a".repeat(101)}`);
+    assert.equal(res.status, 400);
+    assert.match(res.body.error.message, /limited to 100 characters/);
+  });
+
   it("rejects unknown sort orders", async () => {
     const res = await api.request().get("/api/products?sort=cheapest");
     assert.equal(res.status, 400);
@@ -156,5 +164,24 @@ describe("REST API", () => {
       .send("{not json")
       .expect(400);
     assert.equal(malformed.body.error.code, "BAD_REQUEST");
+
+    const charset = await api
+      .request()
+      .post("/api/products")
+      .set("Authorization", `Bearer ${token}`)
+      .set("Content-Type", "application/json; charset=latin1")
+      .send("{}");
+    assert.equal(charset.status, 415);
+    assert.equal(charset.body.error.code, "BAD_REQUEST");
+  });
+
+  it("answers malformed GraphQL bodies with GraphQL-shaped errors", async () => {
+    const res = await api
+      .request()
+      .post("/graphql")
+      .set("Content-Type", "application/json")
+      .send("{not json")
+      .expect(400);
+    assert.equal(res.body.errors[0].extensions.code, "BAD_REQUEST");
   });
 });

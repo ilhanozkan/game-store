@@ -5,20 +5,47 @@ const users = require("../data/users.json");
 
 const ALL_MODELS = [Category, Product, User, Order, Transaction];
 
-// Upserts by a natural key, running schema validation on every document.
-// Sequential so documents are inserted in file order.
+// Upserts by a natural key, running schema validation (and hooks such as
+// slug derivation) on every document. Sequential so documents are inserted in
+// file order.
 const upsertAll = async (Model, documents, key) => {
   for (const document of documents) {
-    await new Model(document).validate();
+    const doc = new Model(document);
+    await doc.validate();
+    const { _id, createdAt, updatedAt, ...fields } = doc.toObject();
     await Model.updateOne(
-      { [key]: document[key] },
-      { $set: document },
+      { [key]: doc[key] },
+      { $set: fields },
       { upsert: true, runValidators: true }
     );
   }
 };
 
-const createUsers = async () => {
+// Drops a collection, ignoring "namespace not found" when it doesn't exist.
+const dropCollection = async (Model) => {
+  try {
+    await Model.collection.drop();
+  } catch (error) {
+    if (error.codeName !== "NamespaceNotFound") throw error;
+  }
+};
+
+const ensureIndexes = async () => {
+  try {
+    await Promise.all(ALL_MODELS.map((Model) => Model.createIndexes()));
+  } catch (error) {
+    // Typically documents from an older schema (e.g. products without a
+    // slug) that violate the new unique indexes.
+    const wrapped = new Error(
+      `Existing data doesn't fit the current schema (${error.message}). ` +
+        "Run `npm run seed -- --reset` to start from a clean database."
+    );
+    wrapped.cause = error;
+    throw wrapped;
+  }
+};
+
+const createDemoUsers = async () => {
   const favoriteSlugs = [...new Set(users.flatMap((u) => u.favorites || []))];
   const favoriteProducts = await Product.find(
     { slug: { $in: favoriteSlugs } },
@@ -54,21 +81,19 @@ const createUsers = async () => {
 };
 
 /**
- * Seeds categories, products and demo users. Safe to run repeatedly:
- * categories and products are upserted by slug, users are only created once.
- * Pass { reset: true } to wipe every collection first.
+ * Seeds categories, products and (optionally) demo users. Safe to run
+ * repeatedly: categories and products are upserted by slug, restoring their
+ * seed values, and users are only created once. Nothing is ever deleted
+ * unless { reset: true } is passed, which drops every collection first.
  */
-const seedDatabase = async ({ reset = false } = {}) => {
-  // Make sure unique indexes exist before inserting.
-  await Promise.all(ALL_MODELS.map((Model) => Model.init()));
-
-  if (reset) {
-    await Promise.all(ALL_MODELS.map((Model) => Model.deleteMany({})));
-  }
+const seedDatabase = async ({ reset = false, demoUsers = true } = {}) => {
+  if (reset) await Promise.all(ALL_MODELS.map(dropCollection));
+  // Unique indexes must exist before inserting.
+  await ensureIndexes();
 
   await upsertAll(Category, categories, "slug");
   await upsertAll(Product, products, "slug");
-  const usersCreated = await createUsers();
+  const usersCreated = demoUsers ? await createDemoUsers() : 0;
 
   return {
     categories: categories.length,
