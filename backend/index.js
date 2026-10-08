@@ -1,66 +1,58 @@
-const express = require("express");
-const { json } = require("express");
-const bodyParser = require("body-parser");
-const app = express();
-const dotenv = require("dotenv").config();
-var cors = require("cors");
+const loadConfig = () => {
+  try {
+    return require("./config");
+  } catch (error) {
+    // Misconfiguration (e.g. a missing JWT_SECRET): explain it and stop.
+    console.error(error.message);
+    return process.exit(1);
+  }
+};
 
-// Apollo GraphQL server
-const { ApolloServer } = require("apollo-server");
-
-// Apollo GraphQL type definitions
-const typeDefs = require("./schema");
-
-// Apollo GraphQL resolvers
-const resolvers = require("./resolvers");
-
-// Apollo GraphQL datasources
-const ProductsAPI = require("./datasources/productsApi");
-const UserAPI = require("./datasources/userApi");
-
-// Routes
-const UsersRoute = require("./routes/users/users");
-const ProductsRoute = require("./routes/products/products.js");
-
-// MongoDB
-const { connectDatabase } = require("./db/connect");
+const config = loadConfig();
+const { createApp } = require("./app");
+const { connectDatabase, disconnectDatabase } = require("./db/connect");
 const { seedDatabase } = require("./db/seed");
 
-app.use(json());
-app.use(cors());
-app.use("/products", ProductsRoute);
-app.use("/users", UsersRoute);
+const SHUTDOWN_TIMEOUT_MS = 15000;
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  dataSources: () => {
-    return { productsAPI: new ProductsAPI(), userAPI: new UserAPI() };
-  },
-});
-
-connectDatabase()
-  .then(async ({ inMemory }) => {
-    if (inMemory) {
-      await seedDatabase();
-      console.warn(
-        "MONGO_URI is not set: using a temporary in-memory MongoDB seeded with demo data."
-      );
-    }
-
-    app.listen(process.env.PORT || "8000", (err) =>
-      console.log(`backend is running on port ${process.env.PORT || 8000}`)
+const start = async () => {
+  const { inMemory } = await connectDatabase(config.mongoUri);
+  if (inMemory) {
+    await seedDatabase();
+    console.warn(
+      "MONGO_URI is not set: using a temporary in-memory MongoDB seeded with demo data."
     );
+  }
 
-    server.listen(process.env.APOLLO_PORT || 4000).then(() => {
-      console.log(`
-        🚀  Server is running!
-        🔉  Listening on port ${process.env.APOLLO_PORT || 4000}
-        📭  Query at http://localhost:${process.env.APOLLO_PORT || 4000}
-      `);
-    });
-  })
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
+  const { httpServer, apollo } = await createApp();
+  await new Promise((resolve) => {
+    httpServer.listen(config.port, resolve);
   });
+  console.log(`🚀 API ready on http://localhost:${config.port}`);
+  console.log(`   GraphQL: http://localhost:${config.port}/graphql`);
+  console.log(`   REST:    http://localhost:${config.port}/api`);
+
+  let shuttingDown = false;
+  const shutdown = async (signal) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    console.log(`${signal} received, finishing in-flight requests…`);
+    setTimeout(() => process.exit(1), SHUTDOWN_TIMEOUT_MS).unref();
+    try {
+      // Drains the HTTP server (see ApolloServerPluginDrainHttpServer).
+      await apollo.stop();
+      await disconnectDatabase();
+      process.exit(0);
+    } catch (error) {
+      console.error(error);
+      process.exit(1);
+    }
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+};
+
+start().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
