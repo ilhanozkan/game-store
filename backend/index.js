@@ -60,4 +60,7 @@ connectDatabase()
       `);
     });
   })
-  .catch((e) => console.log(e));
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

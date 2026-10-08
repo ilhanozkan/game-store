@@ -39,11 +39,14 @@ Create a file named `.env` under the `backend` folder.
 Example **.env** file (see [`backend/.env.example`](backend/.env.example)):
 
 ```bash
-MONGO_URI=mongodb://127.0.0.1:27017/game-store
+# Optional during development: leave it out to use a temporary in-memory database
+# MONGO_URI=mongodb://127.0.0.1:27017/game-store
 PORT=5000
 APOLLO_PORT=4000
 REST_API_URL=http://localhost:5000
 ```
+
+`MONGO_URI` is required whenever `NODE_ENV` is set to anything other than `development` or `test`.
 
 2 - Install dependencies
 
@@ -61,7 +64,7 @@ npm i
 
 3 - Seed the database
 
-Load the categories, products and demo accounts into the database configured by `MONGO_URI`. Seeding is idempotent; add `-- --reset` to wipe all collections first.
+Load the categories, products and demo accounts into the database configured by `MONGO_URI`. Re-running it is safe: it restores the seeded categories and products (including their stock and prices), never touches existing users or orders, and never deletes anything. Add `-- --reset` to drop every collection first, which is also how to upgrade a database created with the old schema.
 
 ```bash
 npm run seed
@@ -123,7 +126,7 @@ The seed creates two accounts for local development:
 | `fola`   | `gamestore123` | customer | ₦500,000      |
 | `admin`  | `admin12345`   | admin    | ₦0            |
 
-> These credentials are for local development only. Never seed them into a production database.
+> These credentials are for local development only. `npm run seed` skips them when `NODE_ENV=production` unless you pass `-- --demo-users`.
 
 ## Data model
 

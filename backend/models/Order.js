@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { wholeNaira } = require("../utils/validators");
+
 const { Schema } = mongoose;
 
 // Order items snapshot the product name, image and price at purchase time so
@@ -9,7 +11,7 @@ const orderItemSchema = new Schema(
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     name: { type: String, required: true, trim: true },
     img: { type: String, trim: true, default: "" },
-    price: { type: Number, required: true, min: 0 },
+    price: { type: Number, required: true, min: 0, validate: wholeNaira },
     quantity: {
       type: Number,
       required: true,
@@ -33,7 +35,7 @@ const orderSchema = new Schema(
         message: "An order needs at least one item",
       },
     },
-    total: { type: Number, required: true, min: 0 },
+    total: { type: Number, required: true, min: 0, validate: wholeNaira },
     status: { type: String, enum: ["paid", "cancelled"], default: "paid" },
   },
   { timestamps: true }
