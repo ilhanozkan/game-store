@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="300" viewBox="0 0 240 300" role="img" aria-label="Hollow Keep cover art">
+  <defs>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1f22"/>
+      <stop offset="0.6" stop-color="#1f4a48"/>
+      <stop offset="1" stop-color="#6c8f7c"/>
+    </linearGradient>
+    <radialGradient id="moonGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f4f1d0" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#f4f1d0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfe3da" stop-opacity="0"/>
+      <stop offset="1" stop-color="#cfe3da" stop-opacity="0.45"/>
+    </linearGradient>
+    <clipPath id="card"><rect width="240" height="300" rx="14"/></clipPath>
+  </defs>
+  <g clip-path="url(#card)">
+    <rect width="240" height="300" fill="url(#dusk)"/>
+    <circle cx="168" cy="118" r="60" fill="url(#moonGlow)"/>
+    <circle cx="168" cy="118" r="26" fill="#f4f1d0"/>
+    <circle cx="160" cy="112" r="5" fill="#dcd8b4"/>
+    <circle cx="176" cy="126" r="3.5" fill="#dcd8b4"/>
+    <path d="M0 236 L30 222 L60 232 L90 216 L130 230 L170 214 L210 228 L240 220 L240 300 L0 300 Z" fill="#0f2a2b"/>
+    <g fill="#071517">
+      <rect x="66" y="150" width="22" height="92"/>
+      <path d="M62 150 l15 -26 l15 26 z"/>
+      <rect x="152" y="166" width="20" height="76"/>
+      <path d="M148 166 l14 -22 l14 22 z"/>
+      <rect x="86" y="182" width="68" height="60"/>
+      <g>
+        <rect x="86" y="174" width="8" height="10"/><rect x="100" y="174" width="8" height="10"/>
+        <rect x="114" y="174" width="8" height="10"/><rect x="128" y="174" width="8" height="10"/>
+        <rect x="142" y="174" width="8" height="10"/>
+      </g>
+      <path d="M108 242 v-24 a12 12 0 0 1 24 0 v24 z" fill="#020808"/>
+    </g>
+    <rect x="74" y="164" width="5" height="9" rx="2" fill="#f2c14e"/>
+    <rect x="160" y="182" width="5" height="9" rx="2" fill="#f2c14e"/>
+    <rect y="200" width="240" height="100" fill="url(#mist)"/>
+    <path d="M0 262 L240 262 L240 300 L0 300 Z" fill="#0a1d1e"/>
+    <text x="120" y="52" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700" fill="#f4f1d0" letter-spacing="2">HOLLOW</text>
+    <text x="120" y="84" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#f2c14e" letter-spacing="8">KEEP</text>
+  </g>
+</svg>

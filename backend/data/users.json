@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Fola",
+    "username": "fola",
+    "email": "fola@example.com",
+    "password": "gamestore123",
+    "role": "customer",
+    "balance": 500000,
+    "img": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&w=100",
+    "favorites": ["logitech-g305", "jbl-quantum-one"]
+  },
+  {
+    "name": "Store Admin",
+    "username": "admin",
+    "email": "admin@example.com",
+    "password": "admin12345",
+    "role": "admin",
+    "balance": 0,
+    "img": "",
+    "favorites": []
+  }
+]

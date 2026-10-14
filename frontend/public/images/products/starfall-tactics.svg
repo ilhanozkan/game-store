@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="300" viewBox="0 0 240 300" role="img" aria-label="Starfall Tactics cover art">
+  <defs>
+    <radialGradient id="space" cx="0.7" cy="0.25" r="0.9">
+      <stop offset="0" stop-color="#25407a"/>
+      <stop offset="0.6" stop-color="#0c1633"/>
+      <stop offset="1" stop-color="#050914"/>
+    </radialGradient>
+    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#618dff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#d7e3ff"/>
+    </linearGradient>
+    <radialGradient id="planet" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffb46b"/>
+      <stop offset="0.7" stop-color="#c2461f"/>
+      <stop offset="1" stop-color="#5a1708"/>
+    </radialGradient>
+    <clipPath id="card"><rect width="240" height="300" rx="14"/></clipPath>
+  </defs>
+  <g clip-path="url(#card)">
+    <rect width="240" height="300" fill="url(#space)"/>
+    <g fill="#fff">
+      <circle cx="22" cy="120" r="1"/><circle cx="60" cy="150" r="1.4"/><circle cx="200" cy="140" r="1"/>
+      <circle cx="170" cy="110" r="0.8"/><circle cx="96" cy="128" r="0.9"/><circle cx="216" cy="196" r="1.2"/>
+      <circle cx="34" cy="206" r="0.9"/><circle cx="140" cy="168" r="0.7"/><circle cx="12" cy="60" r="0.8"/>
+    </g>
+    <circle cx="190" cy="250" r="70" fill="url(#planet)"/>
+    <ellipse cx="190" cy="250" rx="110" ry="16" fill="none" stroke="#ffd7a8" stroke-width="2" opacity="0.6" transform="rotate(-18 190 250)"/>
+    <path d="M18 98 L150 196" stroke="url(#trail)" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="150" cy="196" r="7" fill="#fff"/>
+    <circle cx="150" cy="196" r="16" fill="#9fb9ff" opacity="0.25"/>
+    <g fill="none" stroke="#618dff" stroke-width="1.2" opacity="0.55">
+      <path d="M20 250 l14 -8 l14 8 v16 l-14 8 l-14 -8 z"/>
+      <path d="M48 250 l14 -8 l14 8 v16 l-14 8 l-14 -8 z"/>
+      <path d="M34 274 l14 -8 l14 8 v16 l-14 8 l-14 -8 z"/>
+      <path d="M76 250 l14 -8 l14 8 v16 l-14 8 l-14 -8 z"/>
+    </g>
+    <path d="M44 262 l6 -10 l6 10 l-6 -3 z" fill="#d7e3ff"/>
+    <text x="120" y="50" text-anchor="middle" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-size="32" font-weight="800" fill="#fff" letter-spacing="3">STARFALL</text>
+    <text x="120" y="76" text-anchor="middle" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-size="16" font-weight="600" fill="#9fb9ff" letter-spacing="9">TACTICS</text>
+  </g>
+</svg>

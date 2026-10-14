@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Computer Mouse",
+    "slug": "mouse",
+    "description": "Wired and wireless gaming mice with precise sensors and programmable buttons.",
+    "position": 1
+  },
+  {
+    "name": "Game Headphones",
+    "slug": "headphones",
+    "description": "Headsets with immersive surround sound and clear microphones for team chat.",
+    "position": 2
+  },
+  {
+    "name": "GamePads",
+    "slug": "gamepads",
+    "description": "Controllers for PC and console gaming, from budget pads to pro-grade gear.",
+    "position": 3
+  },
+  {
+    "name": "VR Glasses",
+    "slug": "vr-glasses",
+    "description": "Virtual reality headsets for room-scale play and immersive experiences.",
+    "position": 4
+  },
+  {
+    "name": "Keyboards",
+    "slug": "keyboards",
+    "description": "Backlit gaming keyboards built for fast, reliable keystrokes.",
+    "position": 5
+  },
+  {
+    "name": "Computer",
+    "slug": "computer",
+    "description": "Gaming desktops and components ready for the latest titles.",
+    "position": 6
+  },
+  {
+    "name": "Games",
+    "slug": "games",
+    "description": "Digital game keys delivered instantly to your account.",
+    "position": 7
+  }
+]
