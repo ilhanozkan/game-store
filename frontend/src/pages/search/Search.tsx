@@ -8,7 +8,8 @@ import { PRODUCTS_QUERY } from "../../queries/Queries";
 import { Product, ProductsData } from "../../types/Types";
 import { getErrorMessage } from "../../utils/apolloErrors";
 import { SEARCH_PARAM } from "../../components/search/Search";
-import Loading from "../../components/loading/Loading";
+import usePageTitle from "../../hooks/usePageTitle";
+import { ProductGridSkeleton } from "../../components/skeleton/Skeleton";
 import ProductGrid from "../../components/productGrid/ProductGrid";
 import { PageHeader } from "../../components/ui/Layout";
 import { EmptyState, ErrorState } from "../../components/ui/States";
@@ -27,6 +28,7 @@ const FUSE_OPTIONS: Fuse.IFuseOptions<Product> = {
 const Search = () => {
   const [searchParams] = useSearchParams();
   const term = (searchParams.get(SEARCH_PARAM) || "").trim();
+  usePageTitle(term ? `Search results for “${term}”` : "Search");
   const { data, loading, error, refetch } =
     useQuery<ProductsData>(PRODUCTS_QUERY);
 
@@ -39,7 +41,7 @@ const Search = () => {
     [fuse, term]
   );
 
-  if (loading && !data) return <Loading label="Searching" />;
+  if (loading && !data) return <ProductGridSkeleton label="Searching" />;
   if (error && !data) {
     return (
       <ErrorState message={getErrorMessage(error)} onRetry={() => refetch()} />

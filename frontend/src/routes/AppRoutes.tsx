@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 // General pages
 import Home from "../pages/home/Home";
@@ -22,6 +22,7 @@ import Profile from "../pages/profile/Profile";
 import Favorite from "../pages/favorite/Favorite";
 import Balance from "../pages/balance/Balance";
 import Cart from "../pages/cart/Cart";
+import NotFound from "../pages/notFound/NotFound";
 
 import RequireAuth from "../components/requireAuth/RequireAuth";
 
@@ -78,8 +79,7 @@ const AppRoutes = () => {
       />
       <Route path="/cart" element={<Cart />} />
 
-      {/* Redirection */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

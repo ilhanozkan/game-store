@@ -48,6 +48,17 @@ describe("ProductCard", () => {
     ).toBeInTheDocument();
   });
 
+  it("confirms additions with a toast that opens the cart", async () => {
+    renderWithProviders(<ProductCard product={makeProduct()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: /add to cart/i }));
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Added Logitech G305 to your cart"
+    );
+    expect(screen.getByRole("button", { name: "View cart" })).toBeVisible();
+  });
+
   it("shows sold-out products without letting them be added", () => {
     renderWithProviders(<ProductCard product={makeProduct({ stock: 0 })} />);
 

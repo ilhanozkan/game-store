@@ -10,6 +10,7 @@ import { TransactionsData } from "../../types/Types";
 import formatCurrency from "../../utils/CurrencyFormatter";
 import formatDate from "../../utils/formatDate";
 import { getErrorMessage } from "../../utils/apolloErrors";
+import usePageTitle from "../../hooks/usePageTitle";
 import { colors, radii } from "../../styles/theme";
 import Loading from "../../components/loading/Loading";
 import { Button } from "../../components/ui/Button";
@@ -248,6 +249,7 @@ const Transactions = () => {
 };
 
 const Balance = () => {
+  usePageTitle("Balance");
   const { user } = useAuth();
   if (!user) return null;
 

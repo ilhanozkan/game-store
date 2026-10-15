@@ -8,7 +8,8 @@ import { CATEGORIES_QUERY } from "../../queries/Queries";
 import { CategoriesData } from "../../types/Types";
 import { getErrorMessage } from "../../utils/apolloErrors";
 import { colors, radii } from "../../styles/theme";
-import Loading from "../../components/loading/Loading";
+import usePageTitle from "../../hooks/usePageTitle";
+import { TileGridSkeleton } from "../../components/skeleton/Skeleton";
 import IconSwitcher from "../../components/iconSwitcher/IconSwitcher";
 import { PageHeader } from "../../components/ui/Layout";
 import { ErrorState } from "../../components/ui/States";
@@ -68,12 +69,13 @@ const Footer = styled.span`
 `;
 
 const Catalog = () => {
+  usePageTitle("Catalog");
   const { data, loading, error, refetch } =
     useQuery<CategoriesData>(CATEGORIES_QUERY);
 
   let content;
   if (loading && !data) {
-    content = <Loading label="Loading categories" />;
+    content = <TileGridSkeleton count={7} label="Loading categories" />;
   } else if (error && !data) {
     content = (
       <ErrorState message={getErrorMessage(error)} onRetry={() => refetch()} />

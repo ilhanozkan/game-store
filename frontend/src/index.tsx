@@ -8,6 +8,7 @@ import App from "./App";
 import { createApolloClient } from "./apollo/client";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { ToastProvider } from "./components/toast/ToastContext";
 
 const client = createApolloClient();
 
@@ -21,7 +22,9 @@ root.render(
       <ApolloProvider client={client}>
         <AuthProvider>
           <CartProvider>
-            <App />
+            <ToastProvider>
+              <App />
+            </ToastProvider>
           </CartProvider>
         </AuthProvider>
       </ApolloProvider>

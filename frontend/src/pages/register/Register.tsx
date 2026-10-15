@@ -4,6 +4,8 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { RegisterInput, useAuth } from "../../context/AuthContext";
 import { getErrorMessage } from "../../utils/apolloErrors";
 import safeRedirect from "../../utils/safeRedirect";
+import usePageTitle from "../../hooks/usePageTitle";
+import { useToast } from "../../components/toast/ToastContext";
 import { Button } from "../../components/ui/Button";
 import { Alert, Field, Form, Input } from "../../components/ui/Form";
 import AuthLayout, { Footnote } from "../auth/AuthLayout";
@@ -65,7 +67,9 @@ const FIELDS: {
 ];
 
 const Register = () => {
+  usePageTitle("Create account");
   const { user, register } = useAuth();
+  const showToast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = safeRedirect(searchParams.get("redirect"));
@@ -99,12 +103,13 @@ const Register = () => {
 
     setSubmitting(true);
     try {
-      await register({
+      const created = await register({
         name: values.name.trim(),
         username: values.username.trim(),
         email: values.email.trim(),
         password: values.password,
       });
+      showToast({ message: `Welcome to Game Drill, ${created.name}!` });
       navigate(redirect, { replace: true });
     } catch (err) {
       setServerError(getErrorMessage(err));

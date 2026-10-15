@@ -149,6 +149,7 @@ Other useful scripts:
 - **Balance**: top up demo store credit and review every top-up and purchase.
 - **Profile**: edit your details and review your order history.
 - **Admin**: admins can add products from the **New product** page.
+- **Responsive and accessible**: the layout adapts from phones to wide screens with an off-canvas menu; keyboard users get a skip link, visible focus rings, focus moved to each new page, and drawers that trap and restore focus; toasts are announced to screen readers through persistent live regions, and animations respect reduced-motion settings.
 
 ## Demo accounts
 

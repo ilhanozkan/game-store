@@ -5,6 +5,7 @@ import { FiChevronDown } from "react-icons/fi";
 
 import { colors, radii } from "../../styles/theme";
 import { PageHeader, Panel, PanelTitle } from "../../components/ui/Layout";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const Faq = styled.div`
   display: flex;
@@ -116,31 +117,36 @@ const QUESTIONS: { question: string; answer: React.ReactNode }[] = [
   },
 ];
 
-const Help = () => (
-  <>
-    <PageHeader
-      title="Help center"
-      subtitle="Answers to the questions we hear most often."
-    />
-    <Faq>
-      {QUESTIONS.map(({ question, answer }) => (
-        <Item key={question}>
-          <summary>
-            {question}
-            <FiChevronDown aria-hidden />
-          </summary>
-          <p>{answer}</p>
-        </Item>
-      ))}
-    </Faq>
-    <Panel aria-labelledby="contact-title">
-      <PanelTitle id="contact-title">Still need help?</PanelTitle>
-      <Contact>
-        Email us at <a href="mailto:support@example.com">support@example.com</a>{" "}
-        and we&apos;ll get back to you within one working day.
-      </Contact>
-    </Panel>
-  </>
-);
+const Help = () => {
+  usePageTitle("Help center");
+
+  return (
+    <>
+      <PageHeader
+        title="Help center"
+        subtitle="Answers to the questions we hear most often."
+      />
+      <Faq>
+        {QUESTIONS.map(({ question, answer }) => (
+          <Item key={question}>
+            <summary>
+              {question}
+              <FiChevronDown aria-hidden />
+            </summary>
+            <p>{answer}</p>
+          </Item>
+        ))}
+      </Faq>
+      <Panel aria-labelledby="contact-title">
+        <PanelTitle id="contact-title">Still need help?</PanelTitle>
+        <Contact>
+          Email us at{" "}
+          <a href="mailto:support@example.com">support@example.com</a> and
+          we&apos;ll get back to you within one working day.
+        </Contact>
+      </Panel>
+    </>
+  );
+};
 
 export default Help;
