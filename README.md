@@ -42,11 +42,22 @@ Example **.env** file (see [`backend/.env.example`](backend/.env.example)):
 # Optional during development: leave it out to use a temporary in-memory database
 # MONGO_URI=mongodb://127.0.0.1:27017/game-store
 PORT=5000
-APOLLO_PORT=4000
-REST_API_URL=http://localhost:5000
+# Required whenever MONGO_URI is set; generate one with
+# node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# JWT_SECRET=
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=http://localhost:3000
 ```
 
-`MONGO_URI` is required whenever `NODE_ENV` is set to anything other than `development` or `test`.
+| Variable         | Default                       | Description                                                                                                  |
+| ---------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `MONGO_URI`      | _in-memory database_          | MongoDB connection string. Required unless `NODE_ENV` is unset, `development` or `test`.                     |
+| `PORT`           | `5000`                        | Port for both the GraphQL (`/graphql`) and REST (`/api`) endpoints.                                          |
+| `JWT_SECRET`     | _random, per process_         | Secret used to sign login tokens (at least 32 characters). Required whenever `MONGO_URI` is set.             |
+| `JWT_EXPIRES_IN` | `7d`                          | How long login tokens stay valid.                                                                            |
+| `CORS_ORIGIN`    | `*`                           | Comma-separated origins allowed to call the API.                                                             |
+| `DEMO_WALLET`    | `true`, `false` in production | Allows free store-credit top-ups through `topUpBalance`.                                                     |
+| `TRUST_PROXY`    | _off_                         | Express `trust proxy` setting (e.g. `1`) when running behind a load balancer, so rate limits see client IPs. |
 
 2 - Install dependencies
 
@@ -74,11 +85,16 @@ You can skip this step when running without `MONGO_URI`, because the in-memory d
 
 4 - Start the backend
 
-Start the backend in development.
+Start the backend in development (restarts on file changes):
 
 ```bash
-npm start
+npm run dev
 ```
+
+Use `npm start` to run it without watching. The API is then available at:
+
+- GraphQL: `http://localhost:5000/graphql` (open it in a browser for Apollo Sandbox)
+- REST: `http://localhost:5000/api`
 
 Run the backend test suite with `npm test`.
 
@@ -91,8 +107,7 @@ Create a file named `.env.local` under the `frontend` folder.
 Example **.env.local** file:
 
 ```bash
-REACT_APP_API_URL=http://localhost:4000
-REACT_APP_REST_API_URL=http://localhost:5000
+REACT_APP_API_URL=http://localhost:5000/graphql
 ```
 
 2 - Install dependencies
@@ -189,6 +204,43 @@ erDiagram
         ObjectId order FK
     }
 ```
+
+## API
+
+The backend serves GraphQL and a small read-mostly REST API from the same port. Authenticated requests send `Authorization: Bearer <token>`, where the token comes from the `login` or `register` mutation.
+
+### GraphQL (`/graphql`)
+
+| Operation                                       | Auth     | Description                                                     |
+| ----------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `products(category, search, sort, inStockOnly)` | –        | Lists products. `category` accepts a slug or a name.            |
+| `product(id)`                                   | –        | Finds a product by ID or slug.                                  |
+| `categories`, `category(slug)`                  | –        | Categories with product counts.                                 |
+| `me`                                            | optional | The signed-in user, or `null`.                                  |
+| `myOrders`, `myTransactions`                    | user     | Order history and balance ledger, newest first.                 |
+| `register(input)`, `login(input)`               | –        | Return `{ token, user }`. `login` accepts a username or email.  |
+| `updateProfile(input)`                          | user     | Updates name, email or avatar URL.                              |
+| `toggleFavorite(productId)`                     | user     | Adds or removes a favorite.                                     |
+| `topUpBalance(amount)`                          | user     | Adds demo store credit (whole Naira).                           |
+| `checkout(items)`                               | user     | Pays for the cart from the balance, reserving stock atomically. |
+| `createProduct(input)`                          | admin    | Adds a product to the catalog.                                  |
+
+Errors carry an `extensions.code`: `BAD_USER_INPUT`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `INSUFFICIENT_BALANCE`, `TOO_MANY_REQUESTS` or `INTERNAL_SERVER_ERROR`, plus Apollo's own `GRAPHQL_PARSE_FAILED` and `GRAPHQL_VALIDATION_FAILED` for malformed operations.
+
+Failed sign-ins are limited to 10 per client every 15 minutes and registrations to 10 per hour. Checkout reserves stock and charges the balance with conditional atomic updates and undoes them if a later step fails; it works on a standalone MongoDB, but a process crash mid-checkout can leave reserved stock behind (a replica set with transactions would close that gap).
+
+### REST (`/api`)
+
+| Method & path                      | Auth  | Description                                                                    |
+| ---------------------------------- | ----- | ------------------------------------------------------------------------------ |
+| `GET /api/health`                  | –     | Service and database status.                                                   |
+| `GET /api/categories`              | –     | All categories in navigation order.                                            |
+| `GET /api/products`                | –     | Query params: `category`, `search`, `sort` (e.g. `price_asc`), `inStock=true`. |
+| `GET /api/products/category/:name` | –     | Products in a category (slug or name).                                         |
+| `GET /api/products/:idOrSlug`      | –     | A single product, or `404`.                                                    |
+| `POST /api/products`               | admin | Creates a product.                                                             |
+
+REST errors are returned as `{ "error": { "message", "code" } }` with a matching HTTP status. Note that REST returns raw documents, so a product's `category` is its slug (e.g. `vr-glasses`), while GraphQL resolves `category` to the display name and exposes the slug as `categorySlug`.
 
 ## License
 

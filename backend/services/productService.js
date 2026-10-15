@@ -1,25 +1,111 @@
-const Product = require("../models/Product");
+const { Product } = require("../models");
+const { resolveCategorySlug } = require("./categoryService");
+const { ValidationError } = require("../utils/errors");
+const { isObjectId } = require("../utils/objectId");
 
-class ProductService {
-  constructor(model) {
-    this.model = model;
+const SORTS = {
+  FEATURED: { createdAt: 1, _id: 1 },
+  NEWEST: { createdAt: -1, _id: -1 },
+  PRICE_ASC: { price: 1, _id: 1 },
+  PRICE_DESC: { price: -1, _id: 1 },
+  RATING: { rating: -1, reviewCount: -1, _id: 1 },
+  NAME: { name: 1, _id: 1 },
+};
+
+const MAX_SEARCH_LENGTH = 100;
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Lists products, optionally filtered by category (slug or name), a search
+ * term matched against name, brand and description, and stock availability.
+ */
+const listProducts = async ({
+  category,
+  search,
+  sort: requestedSort,
+  inStockOnly = false,
+} = {}) => {
+  // GraphQL passes null for an explicit `sort: null`.
+  const sort = requestedSort ?? "FEATURED";
+  if (!SORTS[sort]) {
+    throw new ValidationError(
+      `Unknown sort "${sort}". Use one of: ${Object.keys(SORTS).join(", ")}`
+    );
   }
 
-  async insert(object) {
-    return await this.model.create(object);
+  const filter = {};
+
+  if (category) {
+    const slug = await resolveCategorySlug(category);
+    if (!slug) return [];
+    filter.category = slug;
   }
 
-  find(filter) {
-    return this.model.find(filter);
+  const term = typeof search === "string" ? search.trim() : "";
+  if (term.length > MAX_SEARCH_LENGTH) {
+    throw new ValidationError(
+      `Search terms are limited to ${MAX_SEARCH_LENGTH} characters`
+    );
+  }
+  if (term) {
+    const pattern = new RegExp(escapeRegex(term), "i");
+    filter.$or = [
+      { name: pattern },
+      { brand: pattern },
+      { description: pattern },
+    ];
   }
 
-  findById(id) {
-    return this.model.findById(id);
+  if (inStockOnly) filter.stock = { $gt: 0 };
+
+  return Product.find(filter)
+    .sort(SORTS[sort])
+    .collation({ locale: "en", strength: 2 })
+    .lean();
+};
+
+// Finds a product by its ObjectId or its slug.
+const getProduct = (idOrSlug) => {
+  const value = String(idOrSlug || "").trim();
+  if (!value) return Promise.resolve(null);
+  if (isObjectId(value)) {
+    return Product.findById(value).lean().exec();
+  }
+  return Product.findOne({ slug: value.toLowerCase() }).lean().exec();
+};
+
+// Fields callers may set when creating a product; everything else
+// (ratings, timestamps, ids) is managed by the store.
+const CREATABLE_FIELDS = [
+  "name",
+  "brand",
+  "price",
+  "stock",
+  "img",
+  "description",
+  "specs",
+];
+
+const createProduct = async (input) => {
+  const category = await resolveCategorySlug(input.category);
+  if (!category) {
+    throw new ValidationError(`Unknown category "${input.category}"`);
   }
 
-  load() {
-    return this.model.find();
-  }
-}
+  const fields = Object.fromEntries(
+    CREATABLE_FIELDS.filter((key) => input[key] !== undefined).map((key) => [
+      key,
+      input[key],
+    ])
+  );
+  const product = await Product.create({ ...fields, category });
+  return product.toObject();
+};
 
-module.exports = new ProductService(Product);
+module.exports = {
+  SORTS,
+  listProducts,
+  getProduct,
+  createProduct,
+};
