@@ -1,4 +1,4 @@
-import { css } from "styled-components";
+import { css, CSSObject } from "styled-components";
 
 const sizes = {
   mobile: "320px",
@@ -8,7 +8,7 @@ const sizes = {
   desktop: "2560px",
 };
 
-export const mobile = (styles: any) => {
+export const mobile = (styles: CSSObject) => {
   return css`
     @media screen and (max-width: ${sizes.mobile}) {
       ${styles}
@@ -16,7 +16,7 @@ export const mobile = (styles: any) => {
   `;
 };
 
-export const tablet = (styles: any) => {
+export const tablet = (styles: CSSObject) => {
   return css`
     @media screen and (max-width: ${sizes.tablet}) {
       ${styles}

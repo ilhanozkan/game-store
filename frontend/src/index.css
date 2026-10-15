@@ -1,55 +1,61 @@
-* {
+*,
+*::before,
+*::after {
   margin    : 0;
   padding   : 0;
   box-sizing: border-box;
-  font-family: -apple-system, Poppins, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  font-weight: 500;
 }
 
+/* Scale the whole UI from the root so rem-based sizes and inherited font sizes
+   stay proportional on smaller screens. */
 html {
-  width : 100vw;
-  height: 100vh;
-}
-
-@media screen and (max-width: 2560px) {
-  * {
-    font-size: 16px;
-  }
+  font-size: 16px;
 }
 
 @media screen and (max-width: 1440px) {
-  * {
+  html {
     font-size: 14px;
   }
 }
 
 @media screen and (max-width: 1024px) {
-  * {
+  html {
     font-size: 12px;
   }
 }
 
 @media screen and (max-width: 768px) {
-  * {
+  html {
     font-size: 10px;
   }
 }
 
 @media screen and (max-width: 320px) {
-  * {
+  html {
     font-size: 8px;
   }
 }
 
 body {
   margin                 : 0;
+  font-family            : -apple-system, Poppins, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  font-size              : 1rem;
+  font-weight            : 500;
   -webkit-font-smoothing : antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x             : hidden;
   background-color       : #191919;
   color                  : #ffffff;
+}
+
+/* Form controls don't inherit typography by default. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 h1,
@@ -64,6 +70,11 @@ h3 {
 h4 {
   font-weight: 500;
   font-size  : 1.125rem;
+}
+
+strong,
+b {
+  font-weight: 700;
 }
 
 code {
